@@ -56,7 +56,7 @@ reservation_msg db 0AH
                 db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
 
 enter_msg db 0AH, "Enter Your CHoice: $"
-invalid_main db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"
+invalid_choice db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"
 
 accountID db "A1001$"
 password db "ABC12345$"
@@ -81,8 +81,7 @@ MOV AX, @data
 MOV DS, AX
 
 LEA DX, welcome_msg
-MOV AH, 09H
-INT 21H
+CALL DisplayString
 
 MOV AH, 0 
 INT 16H
@@ -143,13 +142,11 @@ enterPass:
 MAIN_MENU:
     CALL ClearScreen
     LEA DX, main_msg
-    MOV AH, 09H
-    INT 21H
+    CALL DisplayString
 
 ENTER_AGAIN:
     LEA DX, enter_msg
-    MOV AH, 09H
-    INT 21H
+    CALL DisplayString
 
     MOV AH, 01H
     INT 21H
@@ -164,9 +161,8 @@ ENTER_AGAIN:
     CMP AL, 4
     JE EXIT
 
-    LEA DX, invalid_main
-    MOV AH, 09H
-    INT 21H
+    LEA DX, invalid_choice
+    CALL DisplayString
     LEA DX, newLine
     INT 21H
 
@@ -199,13 +195,13 @@ CART:
     JMP MAIN_MENU                ;to be CHanged
 
 RESERVATION:
+    CALL ClearScreen
     LEA DX, reservation_msg
-    MOV AH, 09H
-    INT 21H
+    CALL DisplayString
 
+ENTER_AGAIN2:
     LEA DX, enter_msg
-    MOV AH, 09H
-    INT 21H
+    CALL DisplayString
 
     MOV AH, 01H
     INT 21H
@@ -220,11 +216,12 @@ RESERVATION:
     CMP AL, 4
     JE MAIN_MENU
 
-    LEA DX, invalid_main
-    MOV AH, 09H
+    LEA DX, invalid_choice
+    CALL DisplayString
+    LEA DX, newLine
     INT 21H
 
-    JMP RESERVATION
+    JMP ENTER_AGAIN2
 
 EXIT:
     MOV AX, 4C00H
