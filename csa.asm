@@ -25,7 +25,7 @@ welcome_msg db 0AH
             db "\     ||  |  ||  | |     |", 0AH
             db " \____||__|__||__| |_____|", 0AH
 
-db 0AH, "Press any key to contine...$"
+db 0AH, "Press any key to continue...$"
 
 main_msg db 0AH
          db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
