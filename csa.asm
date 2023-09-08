@@ -88,9 +88,11 @@ dateInput label byte
     invalidDayInMonth db "Invalid day in %s! Day must be 1-%d.$"
     leapYearMsg db "This is a leap year!$"
     notLeapYearMsg db "This is not a leap year.$"
-    day db ?
-    month db ?
-    year dw 0
+    day db 0
+    month db 0
+    year dw 0    
+    quo db 0
+    rem db 0
 
 
 
@@ -186,7 +188,8 @@ ENTER_AGAIN2:
     LEA DX, newLine
     INT 21H
 
-    JMP ENTER_AGAIN2
+    JMP ENTER_AGAIN2    
+    
 
 MAKE_RESERVATION:
     LEA DX, datePrompt
@@ -204,20 +207,42 @@ MAKE_RESERVATION:
     JNE invalidFormat  
     MOV AL, [SI+10]
     CMP AL, '$'
-    JE invalidFormat  
-          
-    LEA DI, inputDate
-    mov al, [di]    
-    sub al , '0'  
-    mov bl,10
-    mul bl
-    inc di    
+    JE invalidFormat   
     
-    add al, [di] 
-    sub al, '0'  
+          
+    LEA DI, inputDate     
+    CALL parseDayMonth         ;PARSE DAY
+    MOV day, AL  
+    
+    ADD DI, 2  
+    CALL parseDayMonth         ;PARSE MONTH
+    MOV month, AL 
+     
+    ADD DI, 2 
+    MOV AX, 
+    
+     
 
-             
-    mov day, al
+   
+
+          
+    mov al, month
+    mov ah, 0   
+    div bl      
+    
+    add ah, '0' 
+    add al, '0'      
+    mov quo, al
+    mov rem, ah
+    
+    
+    mov ah, 02h  
+    mov dl, quo
+    int 21h    
+    mov dl, rem
+    int 21h
+      
+    
     
     jmp YEAH   
 
@@ -228,11 +253,20 @@ invalidFormat:
     JMP MAKE_RESERVATION
 
 YEAH:
-    LEA DX, newLine
-    CALL DisplayString
-    mov ah, 02h
-    mov dl, day
-    int 21h
+
+    LEA DX, validDateMsg
+    CALL DisplayString    
+    
+parseDayMonth:           ;X10 + NEXT NUMBER   
+    MOV AL, [DI]            
+    SUB AL, '0'               
+    mov BL, 10      
+    mul BL     
+    inc DI
+    add AL, [DI]
+    sub AL, '0'    
+     
+    ret
 
 
 
