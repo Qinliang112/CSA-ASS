@@ -218,8 +218,24 @@ MAKE_RESERVATION:
     CALL parseDayMonth         ;PARSE MONTH
     MOV month, AL 
      
-    ADD DI, 2 
-    MOV AX, 
+    ADD DI, 2   
+    
+    MOV AL, [DI]            
+    SUB AL, '0'   
+                
+    mov BL, 10      
+    mul BL     
+    inc DI
+    add AL, [DI]  
+    sub AL, '0'   
+    MUL BL
+    INC DI
+    ADD AL, [DI]  
+    SUB AL, '0'
+    MUL BL
+    INC DI
+    ADD DL, [DI]
+    SUB AL, '0'
     
      
 
@@ -260,13 +276,13 @@ YEAH:
 parseDayMonth:           ;X10 + NEXT NUMBER   
     MOV AL, [DI]            
     SUB AL, '0'               
-    mov BL, 10      
-    mul BL     
-    inc DI
-    add AL, [DI]
-    sub AL, '0'    
+    MOV BL, 10      
+    MUL BL     
+    INC DI
+    ADD AL, [DI]
+    SUB AL, '0'    
      
-    ret
+    RET
 
 
 
