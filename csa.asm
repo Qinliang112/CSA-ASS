@@ -55,7 +55,7 @@ reservation_msg db 0AH
                 db "|                         [ 4 ] Back to Main Menu                            |", 0AH
                 db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
 
-enter_msg db 0AH, "Enter Your CHoice: $"
+enter_msg db 0AH, "Enter Your Choice: $"
 invalid_choice db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"
 
 accountID db "A1001$"
@@ -75,69 +75,31 @@ userInput2 label byte
     act2 db ?
     inputPassword db 10 dup("$")
 
+;---------------------------------------------------------------------------------------------
+dateInput label byte
+    max3 db 11 
+    act3 db ?
+    inputDate db 12 dup("$")
+
+    datePrompt db 0DH,0AH, 0DH,0AH, "Enter a date (dd/mm/yyyy): $"
+    validDateMsg db "Valid date!$"
+    invalidDateFormat db 0DH,0AH, "Invalid date format! Use dd/mm/yyyy.$"
+    invalidDayInFebruary db "Invalid day in February! Day must be 1-29.$"
+    invalidDayInMonth db "Invalid day in %s! Day must be 1-%d.$"
+    leapYearMsg db "This is a leap year!$"
+    notLeapYearMsg db "This is not a leap year.$"
+    day db ?
+    month db ?
+    year dw 0
+
+
+
 .CODE
 MAIN PROC
 MOV AX, @data
 MOV DS, AX
 
-LEA DX, welcome_msg
-CALL DisplayString
 
-MOV AH, 0 
-INT 16H
-
-enterId:
-    CALL ClearScreen
-    MOV CX, 0919H
-    CALL CenterCursor
-
-    LEA DX, accountPrompt
-    CALL DisplayString
-    LEA DX, userInput1
-    MOV AH, 0AH
-    INT 21H
-
-    LEA SI, accountID
-    LEA DI, inputID
-    MOV CX, 5
-
-    checkAccountID:
-	MOV AL, [SI]
-	MOV BL, [DI]
-	CMP AL, BL 
-	JNE enterId
-    	INC SI 
-	INC DI
-    	LOOP checkAccountID 
-
-enterPass:
-    MOV CX, 0B19H
-    CALL CenterCursor
-    
-    LEA DX, passwordPrompt
-    CALL DisplayString
-
-    LEA DX, eraser       ;clear previous user input
-    call DisplayString
-    MOV CX, 0B29H
-    CALL CenterCursor
-
-    LEA DX, userInput2
-    MOV AH, 0AH
-    INT 21H
-
-    LEA SI, password
-    LEA DI, inputPassword
-    MOV CX, 8
-
-    checkPassword:
-    	MOV AL, [SI]
-	MOV BL, [DI]
-	CMP AL, BL 
-    	JNE enterPass 
-    	INC SI 
-	INC DI
-    	LOOP checkPassword 
    
 MAIN_MENU:
     CALL ClearScreen
@@ -187,6 +149,9 @@ DisplayString:
     INT 21H
     RET
 
+EXIT:
+    MOV AX, 4C00H
+    INT 21H
 
 MENU:
     JMP MAIN_MENU                ;to be CHanged
@@ -208,7 +173,7 @@ ENTER_AGAIN2:
     SUB AL, '0'
 
     CMP AL, 1
-    JE EXIT                ;to be CHanged
+    JE MAKE_RESERVATION
     CMP AL, 2
     JE exit                ;to be CHanged
     CMP AL, 3
@@ -223,9 +188,53 @@ ENTER_AGAIN2:
 
     JMP ENTER_AGAIN2
 
-EXIT:
-    MOV AX, 4C00H
+MAKE_RESERVATION:
+    LEA DX, datePrompt
+    CALL DisplayString
+    LEA DX, dateInput
+    MOV AH, 0AH
     INT 21H
+
+    LEA SI, inputDate  
+    MOV AL, [SI+2]
+    CMP AL, '/'   
+    JNE invalidFormat   
+    MOV AL, [SI+5]
+    CMP AL, '/'
+    JNE invalidFormat  
+    MOV AL, [SI+10]
+    CMP AL, '$'
+    JE invalidFormat  
+          
+    LEA DI, inputDate
+    mov al, [di]    
+    sub al , '0'  
+    mov bl,10
+    mul bl
+    inc di    
+    
+    add al, [di] 
+    sub al, '0'  
+
+             
+    mov day, al
+    
+    jmp YEAH   
+
+
+invalidFormat:
+    LEA DX, invalidDateFormat
+    CALL DisplayString
+    JMP MAKE_RESERVATION
+
+YEAH:
+    LEA DX, newLine
+    CALL DisplayString
+    mov ah, 02h
+    mov dl, day
+    int 21h
+
+
 
 MAIN ENDP
 END MAIN
