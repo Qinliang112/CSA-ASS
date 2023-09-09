@@ -82,15 +82,23 @@ dateInput label byte
     inputDate db 12 dup("$")
 
     datePrompt db 0DH,0AH, 0DH,0AH, "Enter a date (dd/mm/yyyy): $"
-    validDateMsg db "Valid date!$"
-    invalidDateFormat db 0DH,0AH, "Invalid date format! Use dd/mm/yyyy.$"
-    invalidDayInFebruary db "Invalid day in February! Day must be 1-29.$"
-    invalidDayInMonth db "Invalid day in %s! Day must be 1-%d.$"
-    leapYearMsg db "This is a leap year!$"
-    notLeapYearMsg db "This is not a leap year.$"
+    timePrompt db 0DH,0AH, 0DH,0AH, "Enter reservation time e.g. (13:30): $"
+    validDateMsg db 0DH,0AH,"Valid date!$"
+    invalidDateFormat db 0DH,0AH, "[Error] Invalid date format! Use dd/mm/yyyy!$"   
+    invalidYearG db 0DH,0AH, "[Error] You can only make a reservation before year 2025!$" 
+    invalidYearL db 0DH,0AH, "[Error] You can only make a reservation in this year and before year 2025!$" 
+    invalidMonth db 0DH,0AH, "[Error] Invalid month. Please enter month (01-12) only!$"    
+    invalidDay30 db 0DH,0AH, "[Error] Invalid day. Maximum day for this month is 30!$" 
+    invalidDay31 db 0DH,0AH, "[Error] Invalid day. Maximum day for this month is 31!$"
+    invalidDay29 db "[Error] This is a leap year. Day must be (1-29)!$"  
+    invalidDay28 db "[Error] This not is a leap year. Day must be (1-28)!$"
+    
     day db 0
     month db 0
-    year dw 0    
+    year dw 0
+    sys_day db 0
+    sys_month db 0
+    sys_year dW 0    
     quo db 0
     rem db 0
 
@@ -101,7 +109,65 @@ MAIN PROC
 MOV AX, @data
 MOV DS, AX
 
+LEA DX, welcome_msg
+MOV AH, 09H
+INT 21H
 
+MOV AH, 0 
+INT 16H
+
+enterId:
+    CALL ClearScreen
+    MOV CX, 0919H
+    CALL CenterCursor
+
+    LEA DX, accountPrompt
+    CALL DisplayString
+    LEA DX, userInput1
+    MOV AH, 0AH
+    INT 21H
+
+    LEA SI, accountID
+    LEA DI, inputID
+    MOV CX, 5
+
+    checkAccountID:
+	MOV AL, [SI]
+	MOV BL, [DI]
+	CMP AL, BL 
+	JNE enterId
+    	INC SI 
+	INC DI
+    	LOOP checkAccountID 
+
+enterPass:
+    MOV CX, 0B19H
+    CALL CenterCursor
+    
+    LEA DX, passwordPrompt
+    CALL DisplayString
+
+    LEA DX, eraser       ;clear previous user input
+    call DisplayString
+    MOV CX, 0B29H
+    CALL CenterCursor
+
+    LEA DX, userInput2
+    MOV AH, 0AH
+    INT 21H
+
+    LEA SI, password
+    LEA DI, inputPassword
+    MOV CX, 8
+
+    checkPassword:
+    	MOV AL, [SI]
+	MOV BL, [DI]
+	CMP AL, BL 
+    	JNE enterPass 
+    	INC SI 
+	INC DI
+    	LOOP checkPassword 
    
 MAIN_MENU:
     CALL ClearScreen
@@ -218,61 +284,66 @@ MAKE_RESERVATION:
     CALL parseDayMonth         ;PARSE MONTH
     MOV month, AL 
      
-    ADD DI, 2   
+    ADD DI, 2                  ;PARSE YEAR
     
     MOV AL, [DI]            
+    SUB AL, '0'     ;2         
+    MOV BL, 10     ;20
+    MUL BL     
+    INC DI
+    ADD AL, [DI]  ;22
     SUB AL, '0'   
-                
-    mov BL, 10      
-    mul BL     
-    inc DI
-    add AL, [DI]  
-    sub AL, '0'   
-    MUL BL
+    MUL BL       ;220
     INC DI
-    ADD AL, [DI]  
+    ADD AL, [DI]  ;222
     SUB AL, '0'
-    MUL BL
+    MUL BL          ;2220
     INC DI
-    ADD DL, [DI]
-    SUB AL, '0'
+    ADD AL, [DI]       ;2222
+    SUB AL, '0'         
+    MOV year, AX
     
-     
+                      
+    MOV AH,2AH           ; To get System Date
+    INT 21H
+    MOV sys_day, DL      ; Day is in DL    
+    MOV sys_month,DH     ; Month is in DH  
+    MOV sys_year, CX     ; Year is in CX
+    
+    
+                  
+    CMP year, CX 
+    JL invalid_year_less  
+    CMP year, 2099              ;valid year
+    JG invalid_year_more        
+    
+    CMP month, 1
+    JL invalid_month            ;valid month
+    CMP month, 12
+    JG invalid_month       
+    
+    CMP month, 2 
+    JE check_leap_year          ;valid day, check which month first
+    CMP month, 4 
+    JE check_day30
+    CMP month, 6 
+    JE check_day30
+    CMP month, 9 
+    JE check_day30
+    CMP month, 11 
+    JE check_day30
 
-   
-
-          
-    mov al, month
-    mov ah, 0   
-    div bl      
     
-    add ah, '0' 
-    add al, '0'      
-    mov quo, al
-    mov rem, ah
-    
-    
-    mov ah, 02h  
-    mov dl, quo
-    int 21h    
-    mov dl, rem
-    int 21h
-      
-    
-    
-    jmp YEAH   
-
+    CMP day, 31                ;all months with 31days
+    JLE valid_day
+    JMP invalid_day31  
 
 invalidFormat:
     LEA DX, invalidDateFormat
     CALL DisplayString
     JMP MAKE_RESERVATION
 
-YEAH:
 
-    LEA DX, validDateMsg
-    CALL DisplayString    
-    
 parseDayMonth:           ;X10 + NEXT NUMBER   
     MOV AL, [DI]            
     SUB AL, '0'               
@@ -283,8 +354,99 @@ parseDayMonth:           ;X10 + NEXT NUMBER
     SUB AL, '0'    
      
     RET
+                                       
+
+invalid_year_less:   
+    LEA DX, invalidYearL
+    CALL DisplayString  
+    JMP MAKE_RESERVATION
 
 
+invalid_year_more:
+    LEA DX, invalidYearG
+    CALL DisplayString         
+    JMP MAKE_RESERVATION
+                                                               
+
+invalid_month:                                                      
+    LEA DX, invalidMonth
+    CALL DisplayString         
+    JMP MAKE_RESERVATION     
+    
+check_leap_year:
+    mov ax, year
+    cmp ax, 4
+    jl not_leap_year
+    mov bx, 100
+    div bx
+    cmp dx, 0
+    jne not_leap_year
+    cmp ax, 4
+    jne not_leap_year
+
+    cmp day, 29
+    jle valid_day
+    jmp invalid_day29
+
+not_leap_year:
+    cmp day, 28
+    jle valid_day
+    jmp invalid_day28
+    
+check_day30:
+    CMP day, 30
+    JLE valid_day  
+    ;CMP day, 1                        ;TODO: TEST ZERO
+    ;JL 
+    JMP invalid_day30
+
+invalid_day30:
+    LEA DX, invalidDay30
+    CALL DisplayString         
+    JMP MAKE_RESERVATION   
+    
+invalid_day31:
+    LEA DX, invalidDay31
+    CALL DisplayString         
+    JMP MAKE_RESERVATION 
+    
+invalid_day29: 
+    LEA DX, invalidDay29
+    CALL DisplayString         
+    JMP MAKE_RESERVATION 
+
+invalid_day28:
+    LEA DX, invalidDay28
+    CALL DisplayString         
+    JMP MAKE_RESERVATION 
+     
+    ;mov AX, year
+    ;mov ah, 0   
+    ;div bl      
+    
+    ;add ah, '0' 
+    ;add al, '0'      
+    ;mov quo, al
+    ;mov rem, ah
+    
+    
+    ;mov ah, 02h  
+    ;mov dl, quo
+    ;int 21h    
+    ;mov dl, rem
+    ;int 21h
+      
+    
+    
+    ;jmp YEAH   
+
+
+
+        
+valid_day:
+    LEA DX, timePrompt  
+    CALL DisplayString
+    
 
 MAIN ENDP
 END MAIN
