@@ -79,12 +79,23 @@ userInput2 label byte
 dateInput label byte
     max3 db 11 
     act3 db ?
-    inputDate db 12 dup("$")
+    inputDate db 12 dup("$")  
+    
+timeInput label byte
+    max4 db 6 
+    act4 db ?
+    inputTime db 7 dup("$")
 
     datePrompt db 0DH,0AH, 0DH,0AH, "Enter a date (dd/mm/yyyy): $"
     timePrompt db 0DH,0AH, 0DH,0AH, "Enter reservation time e.g. (13:30): $"
 
-    invalidDateFormat db 0DH,0AH, "[Error] Invalid date format! Use dd/mm/yyyy!$"   
+    invalidDateFormat db 0DH,0AH, "[Error] Invalid date format! Use dd/mm/yyyy!$" 
+    invalidTimeFormat db 0DH,0AH, "[Error] Invalid time format! Use hh:mm!$"       
+    invalidTimeE db 0DH,0AH, "[Error] The earliest reservation time can be made is 10.00am!$"
+    invalidTimeL db 0DH,0AH, "[Error] The last reservation time can be made is 8.00pm!$" 
+    invalidMin db 0DH,0AH, "[Error] Invalid minutes. Please enter (00-59) only!$"
+ 
+    
     invalidYearG db 0DH,0AH, "[Error] You can only make a reservation before year 2025!$" 
     invalidYearL db 0DH,0AH, "[Error] You can only make a reservation in this year and before year 2025!$" 
     invalidMonth db 0DH,0AH, "[Error] Invalid month. Please enter month (01-12) only!$"    
@@ -99,8 +110,10 @@ dateInput label byte
     year dw 0
     sys_day db 0
     sys_month db 0
-    sys_year dW 0    
-
+    sys_year dw 0     
+    
+    hh db 0
+    mm db 0
 
 
 .CODE
@@ -266,13 +279,13 @@ MAKE_RESERVATION:
     LEA SI, inputDate  
     MOV AL, [SI+2]
     CMP AL, '/'   
-    JNE invalidFormat   
+    JNE invalid_Date_Format   
     MOV AL, [SI+5]
     CMP AL, '/'
-    JNE invalidFormat  
+    JNE invalid_Date_Format  
     MOV AL, [SI+10]
     CMP AL, '$'
-    JE invalidFormat   
+    JE invalid_Date_Format   
     
           
     LEA DI, inputDate     
@@ -338,7 +351,7 @@ MAKE_RESERVATION:
     JLE valid_day    
     JMP invalid_day31  
 
-invalidFormat:
+invalid_Date_Format:
     LEA DX, invalidDateFormat
     CALL DisplayString
     JMP MAKE_RESERVATION
@@ -427,16 +440,81 @@ invalid_day28:
     CALL DisplayString         
     JMP MAKE_RESERVATION 
      
-        
-valid_day:
-    LEA DX, timePrompt  
-    CALL DisplayString     
-    
 invalid_day1:
     LEA DX, invalidDay1
     CALL DisplayString         
     JMP MAKE_RESERVATION 
+            
+valid_day: 
+
+    enter_time:
+        LEA DX, timePrompt  
+        CALL DisplayString 
+        LEA DX, timeInput
+        MOV AH, 0AH
+        INT 21H    
+               
+        LEA SI, inputTime
+        MOV AL, inputTime[0] 
+        SUB AL, '0' 
+        MOV DL, 10
+        MUL DL
+                 
+        MOV AH, inputTime[1] 
+        SUB AH, '0'  
+        ADD AL, AH
+        MOV hh, AL
+                
+        MOV AL, inputTime[3] 
+        SUB AL, '0'
+        MUL DL          
+        
+        MOV AH, inputTime[4] 
+        SUB AH, '0'  
+        ADD AL, AH
+        MOV mm, AL
+        
+        CMP inputTime[2], ':'
+        JNE invalid_Time_Format  
+        JMP valid_time       
+
+invalid_Time_Format:  
+    LEA DX, invalidTimeFormat
+    CALL DisplayString         
+    JMP enter_time  
     
+valid_time:                                                                                  
+    CMP hh, 10           
+    JL invalid_time_early
+    CMP hh, 20           
+    JG invalid_time_late           
+
+    JMP check_minutes     
+ 
+invalid_time_early:
+    LEA DX, invalidTimeE
+    CALL DisplayString         
+    JMP enter_time     
+    
+invalid_time_late:
+    LEA DX, invalidTimel
+    CALL DisplayString         
+    JMP enter_time
+
+check_minutes:
+    CMP mm, 0
+    JL invalid_min
+    CMP mm, 59
+    JG invalid_min
+    
+    JMP DONE     
+    
+invalid_min:
+    LEA DX, invalidMin
+    CALL DisplayString         
+    JMP enter_time
+              
+
 
 MAIN ENDP
 END MAIN
