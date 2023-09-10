@@ -53,7 +53,17 @@ reservation_msg db 0AH
                 db "|                         [ 2 ] Modify Reservation                           |", 0AH
                 db "|                         [ 3 ] Cancel Reservation                           |", 0AH
                 db "|                         [ 4 ] Back to Main Menu                            |", 0AH
+                db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"    
+                
+ reservation_head db 0AH
+                db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+                db "|  ____   ___    ___   ___   ____   _   _    _    _____   ___   ____   _  _  |", 0AH
+                db "| /  _ \ ) __(  (  _( ) __( /  _ \ \ ( ) /  )_\  )__ __( )_ _( / __ \ ) \/ ( |", 0AH
+                db "| )  ' / | _)   _) \  | _)  )  ' /  )\_/(  /( )\   | |   _| |_ ))__(( |  \ | |", 0AH
+                db "| |_()_\ )___( )____) )___( |_()_\   \_/  )_/ \_(  )_(  )_____(\____/ )_()_( |", 0AH
+                db "|                                                                            |", 0AH
                 db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+                
 
 enter_msg db 0AH, "Enter Your Choice: $"
 invalid_choice db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"
@@ -74,20 +84,38 @@ userInput2 label byte
     max2 db 9 
     act2 db ?
     inputPassword db 10 dup("$")
+;---------------------------------------------------------------------------------------------    
 
-;---------------------------------------------------------------------------------------------
-dateInput label byte
-    max3 db 11 
+welcomeReservation db 0AH, "Welcome to VERY DELICIOUS CAFE.", 0AH 
+		   db 0AH, "Enter ANY CHARACTERS to continue, [X] back to reservation menu.$", 0AH, "$"
+noReservation db 0AH, "Seems like you have not made any reservation. Make one now?$"  
+
+nameInput label byte
+    max3 db 30 
     act3 db ?
+    inputName db 31 dup("$") 
+
+phoneInput label byte
+    max4 db 11 
+    act4 db ?
+    inputPhone db 12 dup("$") 
+    
+dateInput label byte
+    max5 db 11 
+    act5 db ?
     inputDate db 12 dup("$")  
     
 timeInput label byte
-    max4 db 6 
-    act4 db ?
-    inputTime db 7 dup("$")
-
-    datePrompt db 0DH,0AH, 0DH,0AH, "Enter a date (dd/mm/yyyy): $"
-    timePrompt db 0DH,0AH, 0DH,0AH, "Enter reservation time e.g. (13:30): $"
+    max6 db 6 
+    act6 db ?
+    inputTime db 7 dup("$")       
+    
+    choicePrompt db 0DH,0AH, "Your choice: $"                      
+    namePrompt db 0DH,0AH,0DH,0AH, "Enter your name: $"  
+    phonePrompt db 0DH,0AH, "Enter your phone number: $"  
+    guestPrompt db 0DH,0AH, "Enter number of guest (max 9): $"
+    datePrompt db 0DH,0AH, "Enter a date (dd/mm/yyyy): $"
+    timePrompt db 0DH,0AH, "Enter reservation time e.g. (13:30): $"
 
     invalidDateFormat db 0DH,0AH, "[Error] Invalid date format! Use dd/mm/yyyy!$" 
     invalidTimeFormat db 0DH,0AH, "[Error] Invalid time format! Use hh:mm!$"       
@@ -105,6 +133,8 @@ timeInput label byte
     invalidDay28 db 0DH,0AH,"[Error] This not is a leap year. Day must be (1-28) in Febuary!$" 
     invalidDay1 db 0DH,0AH,"[Error] Invalid day. Please enter at least day 1!$"
     
+    reservationYX db ?
+    noOfGuest db 0
     day db 0
     month db 0
     year dw 0
@@ -270,8 +300,44 @@ ENTER_AGAIN2:
     
 
 MAKE_RESERVATION:
-    LEA DX, datePrompt
+    CALL ClearScreen   
+    LEA DX, reservation_head                      
     CALL DisplayString
+    LEA DX, welcomeReservation
+    CALL DisplayString 
+
+    LEA DX, choicePrompt 
+    CALL DisplayString
+    MOV AH, 01H
+    int 21H
+    MOV reservationYX, AL
+
+    CMP reservationYX, "X"
+    JE RESERVATION
+    CMP reservationYX, "x"
+    JE RESERVATION
+                   
+    LEA DX, namePrompt
+    CALL DisplayString                       ;enter name
+    LEA DX, nameInput
+    MOV AH, 0AH
+    INT 21H   
+    
+    LEA DX, phonePrompt
+    CALL DisplayString                      ;enter phone
+    LEA DX, phoneInput
+    MOV AH, 0AH
+    INT 21H   
+    
+    LEA DX, guestPrompt
+    CALL DisplayString                      ;enter guest
+    MOV AH, 01H
+    INT 21H   
+    MOV noOfGuest, AL
+
+ENTER_AGAIN3:
+    LEA DX, datePrompt
+    CALL DisplayString			    ;enter date
     LEA DX, dateInput
     MOV AH, 0AH
     INT 21H
@@ -292,7 +358,7 @@ MAKE_RESERVATION:
 invalid_Date_Format:
     LEA DX, invalidDateFormat
     CALL DisplayString
-    JMP MAKE_RESERVATION
+    JMP ENTER_AGAIN3
 
 PARSING:    
           
@@ -341,12 +407,12 @@ PARSING:
 invalid_year_less:   
     LEA DX, invalidYearL
     CALL DisplayString  
-    JMP MAKE_RESERVATION
+    JMP ENTER_AGAIN3
 
 invalid_year_more:
     LEA DX, invalidYearG
     CALL DisplayString         
-    JMP MAKE_RESERVATION
+    JMP ENTER_AGAIN3
 
     
 MONTH_VALIDATION:
@@ -359,7 +425,7 @@ MONTH_VALIDATION:
 invalid_month:                                                      
     LEA DX, invalidMonth
     CALL DisplayString         
-    JMP MAKE_RESERVATION  
+    JMP ENTER_AGAIN3  
 
 DAY_VALIDATION:    
     CMP month, 2 
@@ -416,27 +482,27 @@ check_day30:
 invalid_day1:
     LEA DX, invalidDay1
     CALL DisplayString         
-    JMP MAKE_RESERVATION 
+    JMP ENTER_AGAIN3 
 
 invalid_day30:
     LEA DX, invalidDay30
     CALL DisplayString         
-    JMP MAKE_RESERVATION   
+    JMP ENTER_AGAIN3   
     
 invalid_day31:
     LEA DX, invalidDay31
     CALL DisplayString         
-    JMP MAKE_RESERVATION 
+    JMP ENTER_AGAIN3 
     
 invalid_day29: 
     LEA DX, invalidDay29
     CALL DisplayString         
-    JMP MAKE_RESERVATION 
+    JMP ENTER_AGAIN3 
 
 invalid_day28:
     LEA DX, invalidDay28
     CALL DisplayString         
-    JMP MAKE_RESERVATION 
+    JMP ENTER_AGAIN3 
                 
 
 
