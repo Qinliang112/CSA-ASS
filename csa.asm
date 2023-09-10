@@ -83,15 +83,16 @@ dateInput label byte
 
     datePrompt db 0DH,0AH, 0DH,0AH, "Enter a date (dd/mm/yyyy): $"
     timePrompt db 0DH,0AH, 0DH,0AH, "Enter reservation time e.g. (13:30): $"
-    validDateMsg db 0DH,0AH,"Valid date!$"
+
     invalidDateFormat db 0DH,0AH, "[Error] Invalid date format! Use dd/mm/yyyy!$"   
     invalidYearG db 0DH,0AH, "[Error] You can only make a reservation before year 2025!$" 
     invalidYearL db 0DH,0AH, "[Error] You can only make a reservation in this year and before year 2025!$" 
     invalidMonth db 0DH,0AH, "[Error] Invalid month. Please enter month (01-12) only!$"    
     invalidDay30 db 0DH,0AH, "[Error] Invalid day. Maximum day for this month is 30!$" 
     invalidDay31 db 0DH,0AH, "[Error] Invalid day. Maximum day for this month is 31!$"
-    invalidDay29 db "[Error] This is a leap year. Day must be (1-29)!$"  
-    invalidDay28 db "[Error] This not is a leap year. Day must be (1-28)!$"
+    invalidDay29 db 0DH,0AH,"[Error] This is a leap year. Day must be (1-29) in Febuary!$"  
+    invalidDay28 db 0DH,0AH,"[Error] This not is a leap year. Day must be (1-28) in Febuary!$" 
+    invalidDay1 db 0DH,0AH,"[Error] Invalid day. Please enter at least day 1!$"
     
     day db 0
     month db 0
@@ -99,8 +100,6 @@ dateInput label byte
     sys_day db 0
     sys_month db 0
     sys_year dW 0    
-    quo db 0
-    rem db 0
 
 
 
@@ -314,7 +313,7 @@ MAKE_RESERVATION:
                   
     CMP year, CX 
     JL invalid_year_less  
-    CMP year, 2099              ;valid year
+    CMP year, 2025              ;valid year
     JG invalid_year_more        
     
     CMP month, 1
@@ -333,9 +332,10 @@ MAKE_RESERVATION:
     CMP month, 11 
     JE check_day30
 
-    
+    CMP day, 1
+    JL invalid_day1
     CMP day, 31                ;all months with 31days
-    JLE valid_day
+    JLE valid_day    
     JMP invalid_day31  
 
 invalidFormat:
@@ -374,30 +374,37 @@ invalid_month:
     JMP MAKE_RESERVATION     
     
 check_leap_year:
-    mov ax, year
-    cmp ax, 4
-    jl not_leap_year
-    mov bx, 100
-    div bx
-    cmp dx, 0
-    jne not_leap_year
-    cmp ax, 4
-    jne not_leap_year
-
-    cmp day, 29
-    jle valid_day
-    jmp invalid_day29
-
-not_leap_year:
-    cmp day, 28
-    jle valid_day
-    jmp invalid_day28
+    MOV AX, year
+    MOV BX, 100
+    MOV DX, 0000H 
+    DIV BX                ;2024/100, 20INAX 24INDX
     
-check_day30:
+    
+    MOV AL, DL
+    MOV BL, 4             ;24/4 IF REM IS 0 = LEAP
+    DIV BL
+    CMP AH, 0
+    JNZ not_leap_year
+       
+    CMP day, 1
+    JL invalid_day1   
+    CMP day, 29
+    JLE valid_day  
+    JMP invalid_day29
+   
+
+not_leap_year:  
+    CMP day, 1
+    JL invalid_day1
+    CMP day, 28
+    JLE valid_day
+    JMP invalid_day28
+    
+check_day30:  
+    CMP day, 1                        ;TODO: TEST ZERO
+    JL  invalid_day1
     CMP day, 30
     JLE valid_day  
-    ;CMP day, 1                        ;TODO: TEST ZERO
-    ;JL 
     JMP invalid_day30
 
 invalid_day30:
@@ -420,32 +427,15 @@ invalid_day28:
     CALL DisplayString         
     JMP MAKE_RESERVATION 
      
-    ;mov AX, year
-    ;mov ah, 0   
-    ;div bl      
-    
-    ;add ah, '0' 
-    ;add al, '0'      
-    ;mov quo, al
-    ;mov rem, ah
-    
-    
-    ;mov ah, 02h  
-    ;mov dl, quo
-    ;int 21h    
-    ;mov dl, rem
-    ;int 21h
-      
-    
-    
-    ;jmp YEAH   
-
-
-
         
 valid_day:
     LEA DX, timePrompt  
-    CALL DisplayString
+    CALL DisplayString     
+    
+invalid_day1:
+    LEA DX, invalidDay1
+    CALL DisplayString         
+    JMP MAKE_RESERVATION 
     
 
 MAIN ENDP
