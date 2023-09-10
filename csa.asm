@@ -286,7 +286,15 @@ MAKE_RESERVATION:
     MOV AL, [SI+10]
     CMP AL, '$'
     JE invalid_Date_Format   
-    
+    JMP PARSING
+
+
+invalid_Date_Format:
+    LEA DX, invalidDateFormat
+    CALL DisplayString
+    JMP MAKE_RESERVATION
+
+PARSING:    
           
     LEA DI, inputDate     
     CALL parseDayMonth         ;PARSE DAY
@@ -328,12 +336,32 @@ MAKE_RESERVATION:
     JL invalid_year_less  
     CMP year, 2025              ;valid year
     JG invalid_year_more        
+    JMP MONTH_VALIDATION
+
+invalid_year_less:   
+    LEA DX, invalidYearL
+    CALL DisplayString  
+    JMP MAKE_RESERVATION
+
+invalid_year_more:
+    LEA DX, invalidYearG
+    CALL DisplayString         
+    JMP MAKE_RESERVATION
+
     
+MONTH_VALIDATION:
     CMP month, 1
     JL invalid_month            ;valid month
     CMP month, 12
-    JG invalid_month       
-    
+    JG invalid_month  
+    JMP DAY_VALIDATION
+
+invalid_month:                                                      
+    LEA DX, invalidMonth
+    CALL DisplayString         
+    JMP MAKE_RESERVATION  
+
+DAY_VALIDATION:    
     CMP month, 2 
     JE check_leap_year          ;valid day, check which month first
     CMP month, 4 
@@ -350,42 +378,7 @@ MAKE_RESERVATION:
     CMP day, 31                ;all months with 31days
     JLE valid_day    
     JMP invalid_day31  
-
-invalid_Date_Format:
-    LEA DX, invalidDateFormat
-    CALL DisplayString
-    JMP MAKE_RESERVATION
-
-
-parseDayMonth:           ;X10 + NEXT NUMBER   
-    MOV AL, [DI]            
-    SUB AL, '0'               
-    MOV BL, 10      
-    MUL BL     
-    INC DI
-    ADD AL, [DI]
-    SUB AL, '0'    
-     
-    RET
-                                       
-
-invalid_year_less:   
-    LEA DX, invalidYearL
-    CALL DisplayString  
-    JMP MAKE_RESERVATION
-
-
-invalid_year_more:
-    LEA DX, invalidYearG
-    CALL DisplayString         
-    JMP MAKE_RESERVATION
-                                                               
-
-invalid_month:                                                      
-    LEA DX, invalidMonth
-    CALL DisplayString         
-    JMP MAKE_RESERVATION     
-    
+                                      
 check_leap_year:
     MOV AX, year
     MOV BX, 100
@@ -420,6 +413,11 @@ check_day30:
     JLE valid_day  
     JMP invalid_day30
 
+invalid_day1:
+    LEA DX, invalidDay1
+    CALL DisplayString         
+    JMP MAKE_RESERVATION 
+
 invalid_day30:
     LEA DX, invalidDay30
     CALL DisplayString         
@@ -439,12 +437,9 @@ invalid_day28:
     LEA DX, invalidDay28
     CALL DisplayString         
     JMP MAKE_RESERVATION 
-     
-invalid_day1:
-    LEA DX, invalidDay1
-    CALL DisplayString         
-    JMP MAKE_RESERVATION 
-            
+                
+
+
 valid_day: 
 
     enter_time:
@@ -506,14 +501,23 @@ check_minutes:
     JL invalid_min
     CMP mm, 59
     JG invalid_min
-    
-    JMP DONE     
+        
     
 invalid_min:
     LEA DX, invalidMin
     CALL DisplayString         
     JMP enter_time
-              
+
+parseDayMonth:           ;X10 + NEXT NUMBER   
+    MOV AL, [DI]            
+    SUB AL, '0'               
+    MOV BL, 10      
+    MUL BL     
+    INC DI
+    ADD AL, [DI]
+    SUB AL, '0'    
+     
+    RET              
 
 
 MAIN ENDP
