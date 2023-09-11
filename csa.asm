@@ -55,7 +55,7 @@ reservation_msg db 0AH
                 db "|                         [ 4 ] Back to Main Menu                            |", 0AH
                 db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"    
                 
- reservation_head db 0AH
+reservation_head db 0AH
                 db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
                 db "|  ____   ___    ___   ___   ____   _   _    _    _____   ___   ____   _  _  |", 0AH
                 db "| /  _ \ ) __(  (  _( ) __( /  _ \ \ ( ) /  )_\  )__ __( )_ _( / __ \ ) \/ ( |", 0AH
@@ -63,10 +63,16 @@ reservation_msg db 0AH
                 db "| |_()_\ )___( )____) )___( |_()_\   \_/  )_/ \_(  )_(  )_____(\____/ )_()_( |", 0AH
                 db "|                                                                            |", 0AH
                 db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+
+reservation_confirmation db 0AH
+                db "          -------------------------------------------------------", 0AH
+                db "          |                RESERVATION DETAILS                  |", 0AH
+                db "          -------------------------------------------------------", "$"
                 
 
 enter_msg db 0AH, "Enter Your Choice: $"
-invalid_choice db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"
+invalid_choice db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"   
+invalid_YN db 0AH, "[Error] Please Enter (Y/N) ONLY!$"
 
 accountID db "A1001$"
 password db "ABC12345$"
@@ -109,7 +115,8 @@ timeInput label byte
     max6 db 6 
     act6 db ?
     inputTime db 7 dup("$")       
-    
+                                         
+    confirmReservation db 0DH,0AH, "Confirm to make this reservation (Y/N): $"                                  
     choicePrompt db 0DH,0AH, "Your choice: $"                      
     namePrompt db 0DH,0AH,0DH,0AH, "Enter your name: $"  
     phonePrompt db 0DH,0AH, "Enter your phone number: $"  
@@ -566,13 +573,54 @@ check_minutes:
     CMP mm, 0
     JL invalid_min
     CMP mm, 59
-    JG invalid_min
+    JG invalid_min        
+    
+confirmation:
+    LEA DX, confirmReservation
+    CALL DisplayString   
+    MOV AH, 01H
+    INT 21H   
+    
+    CMP AL, "Y"  
+    JE sucess_reservation   
+    CMP AL, "y"
+    JE sucess_reservation
+    CMP AL, "N"
+    ;JE MAKE_RESERVATION  
+    CMP AL, "n"
+    ;JE MAKE_RESERVATION
+
+    
+    JMP ENTER_AGAIN4
         
     
 invalid_min:
     LEA DX, invalidMin
     CALL DisplayString         
-    JMP enter_time
+    JMP enter_time      
+    
+ENTER_AGAIN4:
+    LEA DX, invalid_YN
+    CALL DisplayString
+    JMP confirmation 
+    
+     
+sucess_reservation:  
+    CALL ClearScreen
+    LEA DX, reservation_head
+    CALL DisplayString
+    
+    MOV CX, 0819H
+    CALL CenterCursor
+    LEA DX, reservation_confirmation
+    CALL DisplayString
+
+    MOV CX, 0B0AH
+    CALL CenterCursor
+
+    
+
+    JMP ENDING
 
 parseDayMonth:           ;X10 + NEXT NUMBER   
     MOV AL, [DI]            
@@ -585,6 +633,6 @@ parseDayMonth:           ;X10 + NEXT NUMBER
      
     RET              
 
-
+ENDING:
 MAIN ENDP
 END MAIN
