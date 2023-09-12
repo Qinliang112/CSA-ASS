@@ -81,7 +81,7 @@ accountPrompt db "Enter Account ID: $"
 passwordPrompt db "Enter Password: $"
 eraser	DB "            $"
 
-userInput1 label byte
+userInput1 label byte                                                                                   
     max1 db 6 
     act1 db ?
     inputID db 7 dup("$")
@@ -92,19 +92,23 @@ userInput2 label byte
     inputPassword db 10 dup("$")
 ;---------------------------------------------------------------------------------------------    
 
+names db "$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$"
+phones db "$$$$$$$$$$$$$", "$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$"  
+dates db "$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$"   
+times db "$$$$$$", "$$$$$$$", "$$$$$$$", "$$$$$$$", "$$$$$$$"
 welcomeReservation db 0AH, "Welcome to VERY DELICIOUS CAFE.", 0AH 
 		   db 0AH, "Enter ANY CHARACTERS to continue, [X] back to reservation menu.$", 0AH, "$"
 noReservation db 0AH, "Seems like you have not made any reservation. Make one now?$"  
 
 nameInput label byte
-    max3 db 30 
+    max3 db 21 
     act3 db ?
-    inputName db 31 dup("$") 
+    inputName db 22 dup("$") 
 
 phoneInput label byte
-    max4 db 11 
+    max4 db 13 
     act4 db ?
-    inputPhone db 12 dup("$") 
+    inputPhone db 14 dup("$") 
     
 dateInput label byte
     max5 db 11 
@@ -118,12 +122,13 @@ timeInput label byte
                                          
     confirmReservation db 0DH,0AH, "Confirm to make this reservation (Y/N): $"                                  
     choicePrompt db 0DH,0AH, "Your choice: $"                      
-    namePrompt db 0DH,0AH,0DH,0AH, "Enter your name: $"  
-    phonePrompt db 0DH,0AH, "Enter your phone number: $"  
+    namePrompt db 0DH,0AH,0DH,0AH, "Enter your name (max 20 characters): $"  
+    phonePrompt db 0DH,0AH, "Enter your phone number (max 12 characters): $"  
     guestPrompt db 0DH,0AH, "Enter number of guest (max 9): $"
     datePrompt db 0DH,0AH, "Enter a date (dd/mm/yyyy): $"
     timePrompt db 0DH,0AH, "Enter reservation time e.g. (13:30): $"
-
+    
+    invaildGuest db 0DH,0AH, "[Error] Please enter 1-9 only!$" 
     invalidDateFormat db 0DH,0AH, "[Error] Invalid date format! Use dd/mm/yyyy!$" 
     invalidTimeFormat db 0DH,0AH, "[Error] Invalid time format! Use hh:mm!$"       
     invalidTimeE db 0DH,0AH, "[Error] The earliest reservation time can be made is 10.00am!$"
@@ -139,7 +144,8 @@ timeInput label byte
     invalidDay29 db 0DH,0AH,"[Error] This is a leap year. Day must be (1-29) in Febuary!$"  
     invalidDay28 db 0DH,0AH,"[Error] This not is a leap year. Day must be (1-28) in Febuary!$" 
     invalidDay1 db 0DH,0AH,"[Error] Invalid day. Please enter at least day 1!$"
-    
+     
+    reservationCount dw 0
     reservationYX db ?
     noOfGuest db 0
     day db 0
@@ -328,21 +334,65 @@ MAKE_RESERVATION:
     CALL DisplayString                       ;enter name
     LEA DX, nameInput
     MOV AH, 0AH
-    INT 21H   
+    INT 21H  
     
+    MOV SI, reservationCount  
+    LEA DI, inputName
+    MOV CX, 20
+    COPY20:                                  ;copy name to names
+       MOV BX, [DI]
+       MOV names[SI], BL  
+       INC DI
+       INC SI
+       LOOP COPY20
+      
     LEA DX, phonePrompt
     CALL DisplayString                      ;enter phone
     LEA DX, phoneInput
     MOV AH, 0AH
-    INT 21H   
+    INT 21H        
     
+    MOV SI, reservationCount  
+    LEA DI, inputPhone
+    MOV CX, 12
+    COPY12:                                  ;copy phone to phones
+       MOV BX, [DI]
+       MOV phones[SI], BL  
+       INC DI
+       INC SI
+       LOOP COPY12
+
+enter_guest:    
     LEA DX, guestPrompt
     CALL DisplayString                      ;enter guest
     MOV AH, 01H
-    INT 21H   
-    MOV noOfGuest, AL
+    INT 21H    
+    
+    SUB AL, "0"
+    CMP AL, 1
+    JL invalid_Guest
+    CMP AL, 9
+    JG invalid_Guest
+    
+    MOV noOfGuest, AL 
+    JMP ENTER_AGAIN3  
+    
+invalid_Guest:
+    LEA DX, invaildGuest
+    CALL DisplayString
+    JMP enter_guest
 
-ENTER_AGAIN3:
+ENTER_AGAIN3:   
+    LEA SI, inputDate
+    XOR AL, AL                    
+    
+    DATE_CLEANING:
+        MOV [SI], AL             ;clean inputDate = "$$$$$$$$$$"
+        INC SI
+	MOV BL, [SI]
+        CMP BL, "$"
+        JNE DATE_CLEANING     
+
     LEA DX, datePrompt
     CALL DisplayString			    ;enter date
     LEA DX, dateInput
@@ -449,8 +499,8 @@ DAY_VALIDATION:
     CMP day, 1
     JL invalid_day1
     CMP day, 31                ;all months with 31days
-    JLE valid_day    
-    JMP invalid_day31  
+    JG invalid_day31    
+    JMP valid_day  
                                       
 check_leap_year:
     MOV AX, year
@@ -513,16 +563,44 @@ invalid_day28:
                 
 
 
-valid_day: 
-
-    enter_time:
+valid_day:          
+    
+    MOV SI, reservationCount  
+    LEA DI, inputDate
+    MOV CX, 10
+    COPY10:                                  ;copy date to dates
+       MOV BX, [DI]
+       MOV dates[SI], BL  
+       INC DI
+       INC SI
+       LOOP COPY10
+    
+    enter_time:      
+        LEA SI, inputTime
+        XOR AL, AL
+        
+        TIME_CLEANING:
+            MOV [SI], AL             ;clean inputTime = "$$$$$"
+            INC SI
+	    MOV BL, [SI]
+            CMP BL, "$"
+            JNE TIME_CLEANING   
+        
+        
         LEA DX, timePrompt  
         CALL DisplayString 
         LEA DX, timeInput
         MOV AH, 0AH
-        INT 21H    
-               
+        INT 21H      
+        
         LEA SI, inputTime
+                
+        CMP inputTime[2], ':'
+        JNE invalid_Time_Format  
+        CMP inputTime[5], '$'
+        JE invalid_Time_Format
+           
+                      
         MOV AL, inputTime[0] 
         SUB AL, '0' 
         MOV DL, 10
@@ -540,11 +618,9 @@ valid_day:
         MOV AH, inputTime[4] 
         SUB AH, '0'  
         ADD AL, AH
-        MOV mm, AL
+        MOV mm, AL 
         
-        CMP inputTime[2], ':'
-        JNE invalid_Time_Format  
-        JMP valid_time       
+        JMP valid_time
 
 invalid_Time_Format:  
     LEA DX, invalidTimeFormat
@@ -606,6 +682,7 @@ ENTER_AGAIN4:
     
      
 sucess_reservation:  
+    ADD reservationCount, 1
     CALL ClearScreen
     LEA DX, reservation_head
     CALL DisplayString
