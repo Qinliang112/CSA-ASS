@@ -25,7 +25,8 @@ welcome_msg db 0AH
             db "\     ||  |  ||  | |     |", 0AH
             db " \____||__|__||__| |_____|", 0AH
 
-db 0AH, "Press any key to continue...$"
+db 0AH, "Press any key to continue...$"   
+continue db "Press any key to continue...$"
 
 main_msg db 0AH
          db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
@@ -68,11 +69,32 @@ reservation_confirmation db 0AH
                 db "          -------------------------------------------------------", 0AH
                 db "          |                RESERVATION DETAILS                  |", 0AH
                 db "          -------------------------------------------------------", "$"
-                
+
+reservationDetails db "          -------------------------------------------------------", 0AH
+		   db "          | NAME                 :                              |", 0AH
+                   db "          | PHONE                :                              |", 0AH
+	           db "          | NUMBER OF GUEST(s)   :                              |", 0AH
+    	           db "          | DATE                 :                              |", 0AH
+	           db "          | TIME                 :                              |", 0AH
+                   db "          -------------------------------------------------------", 0AH
+		   db "          |            THANK YOU FOR YOUR RESERVATION!          |", 0AH
+                   db "          -------------------------------------------------------", "$"      
+
+reservation_cancel db 0AH
+                db "          --------------------------------------------------", 0AH
+                db "          | NO |        DATE           |       TIME        |", 0AH
+                db "          --------------------------------------------------", 0AH, "$"          
+
+line1 db "          | 0  |                       |                   |", 0AH
+      db "          --------------------------------------------------", "$"
+
+
 
 enter_msg db 0AH, "Enter Your Choice: $"
+reservationSelection db 0AH, "Select which reservation to cancel: NO $"
 invalid_choice db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"   
-invalid_YN db 0AH, "[Error] Please Enter (Y/N) ONLY!$"
+invalid_YN db 0AH, "[Error] Please Enter (Y/N) ONLY!$"  
+invalidYX db 0AH, "[Error] Please Enter (Y/X) ONLY!$"
 
 accountID db "A1001$"
 password db "ABC12345$"
@@ -94,11 +116,16 @@ userInput2 label byte
 
 names db "$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$"
 phones db "$$$$$$$$$$$$$", "$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$"  
-dates db "$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$"   
+guests db 5 dup(0)
+dates db "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$"   
 times db "$$$$$$", "$$$$$$$", "$$$$$$$", "$$$$$$$", "$$$$$$$"
-welcomeReservation db 0AH, "Welcome to VERY DELICIOUS CAFE.", 0AH 
-		   db 0AH, "Enter ANY CHARACTERS to continue, [X] back to reservation menu.$", 0AH, "$"
-noReservation db 0AH, "Seems like you have not made any reservation. Make one now?$"  
+makeReservation db 0AH, "[MAKE RESERVATION]", 0AH 
+		   db 0AH, "Enter [Y] to continue, [X] back to reservation menu.$", 0AH, "$"   
+		   
+cancelReservation db 0AH, "[CANCEL RESERVATION]", 0AH 
+		   db 0AH, "Enter [Y] to continue, [X] back to reservation menu.$", 0AH, "$"
+		   
+noReservation db 0AH, 0AH, 0AH, "Seems like you have not made any reservation. Make one now? (Y/N)$"  
 
 nameInput label byte
     max3 db 21 
@@ -144,10 +171,14 @@ timeInput label byte
     invalidDay29 db 0DH,0AH,"[Error] This is a leap year. Day must be (1-29) in Febuary!$"  
     invalidDay28 db 0DH,0AH,"[Error] This not is a leap year. Day must be (1-28) in Febuary!$" 
     invalidDay1 db 0DH,0AH,"[Error] Invalid day. Please enter at least day 1!$"
-     
+    
+    namesPointer dw 0 
+    phonesPointer dw 0
+    datesPointer dw 0
+    timesPointer dw 0
+    loopCounter dw 0
     reservationCount dw 0
     reservationYX db ?
-    noOfGuest db 0
     day db 0
     month db 0
     year dw 0
@@ -296,11 +327,11 @@ ENTER_AGAIN2:
     SUB AL, '0'
 
     CMP AL, 1
-    JE MAKE_RESERVATION
+    JE CALL_MAKE_RESERVATION
     CMP AL, 2
     JE exit                ;to be CHanged
     CMP AL, 3
-    JE exit                ;to be CHanged
+    JE CALL_CEANCEL_RESERVATION               
     CMP AL, 4
     JE MAIN_MENU
 
@@ -309,27 +340,44 @@ ENTER_AGAIN2:
     LEA DX, newLine
     INT 21H
 
-    JMP ENTER_AGAIN2    
+    JMP ENTER_AGAIN2 
     
+CALL_MAKE_RESERVATION:
+    CALL MAKE_RESERVATION
+    RET         
+    
+CALL_CEANCEL_RESERVATION:
+    CALL CANCEL_RESERVATION
+    RET
 
-MAKE_RESERVATION:
+MAKE_RESERVATION PROC
     CALL ClearScreen   
     LEA DX, reservation_head                      
     CALL DisplayString
-    LEA DX, welcomeReservation
+    LEA DX, makeReservation
     CALL DisplayString 
-
+     
+REENTER_CHOICE:
     LEA DX, choicePrompt 
     CALL DisplayString
     MOV AH, 01H
     int 21H
     MOV reservationYX, AL
-
+                          
+    CMP reservationYX, "Y"
+    JE valid_YX
+    CMP reservationYX, "y"
+    JE valid_YX         
     CMP reservationYX, "X"
     JE RESERVATION
     CMP reservationYX, "x"
-    JE RESERVATION
-                   
+    JE RESERVATION         
+    
+    LEA DX, invalidYX
+    CALL DisplayString
+    JMP REENTER_CHOICE   
+     
+valid_YX:                   
     LEA DX, namePrompt
     CALL DisplayString                       ;enter name
     LEA DX, nameInput
@@ -373,8 +421,10 @@ enter_guest:
     JL invalid_Guest
     CMP AL, 9
     JG invalid_Guest
-    
-    MOV noOfGuest, AL 
+                
+    MOV BX, reservationCount  
+    ADD AL, "0"
+    MOV guests[BX], AL 
     JMP ENTER_AGAIN3  
     
 invalid_Guest:
@@ -565,7 +615,7 @@ invalid_day28:
 
 valid_day:          
     
-    MOV SI, reservationCount  
+    MOV SI, datesPointer  
     LEA DI, inputDate
     MOV CX, 10
     COPY10:                                  ;copy date to dates
@@ -651,24 +701,40 @@ check_minutes:
     CMP mm, 59
     JG invalid_min        
     
-confirmation:
+confirmation:        
+    MOV SI, timesPointer  
+    LEA DI, inputTime
+    MOV CX, 5
+    COPY5:                                  ;copy time to times
+       MOV BX, [DI]
+       MOV times[SI], BL  
+       INC DI
+       INC SI
+       LOOP COPY5
+       
     LEA DX, confirmReservation
     CALL DisplayString   
     MOV AH, 01H
     INT 21H   
     
     CMP AL, "Y"  
-    JE sucess_reservation   
+    JE valid_YN   
     CMP AL, "y"
-    JE sucess_reservation
+    JE valid_YN
     CMP AL, "N"
-    ;JE MAKE_RESERVATION  
+    JE valid_YN  
     CMP AL, "n"
-    ;JE MAKE_RESERVATION
-
+    JE valid_YN
     
     JMP ENTER_AGAIN4
-        
+         
+valid_YN:
+    CMP AL, "Y"
+    JE sucess_reservation
+    CMP AL, "y"
+    JE sucess_reservation   
+    
+    CALL MAKE_RESERVATION
     
 invalid_min:
     LEA DX, invalidMin
@@ -682,7 +748,6 @@ ENTER_AGAIN4:
     
      
 sucess_reservation:  
-    ADD reservationCount, 1
     CALL ClearScreen
     LEA DX, reservation_head
     CALL DisplayString
@@ -692,24 +757,197 @@ sucess_reservation:
     LEA DX, reservation_confirmation
     CALL DisplayString
 
-    MOV CX, 0B0AH
+    MOV CX, 0B00H
     CALL CenterCursor
+    LEA DX, reservationDetails
+    CALL DisplayString
+          
+    MOV BX, reservationCount
+    
+    MOV CX, 0C23H
+    CALL CenterCursor
+    LEA DX, names[BX]
+    CALL DisplayString   
+    
+    MOV CX, 0D23H
+    CALL CenterCursor
+    LEA DX, phones[BX]
+    CALL DisplayString 
+    
+    MOV CX, 0E23H
+    CALL CenterCursor 
+    MOV AH, 02H
+    MOV DL, guests[BX]
+    INT 21H
+    
+    MOV CX, 0F23H
+    CALL CenterCursor
+    LEA DX, dates[BX]
+    CALL DisplayString
+    
+    MOV CX, 1023H
+    CALL CenterCursor
+    LEA DX, times[BX]
+    CALL DisplayString
+ 
+    MOV CX, 1500H
+    CALL CenterCursor
+    LEA DX, continue
+    CALL DisplayString
+    MOV AH, 0 
+    INT 16H     
+    
+    ADD reservationCount, 1
+    ADD datespointer, 11
+    ADD timesPointer, 6
+    JMP RESERVATION 
+    
+    RET   
+    
+MAKE_RESERVATION ENDP    
+
+
+
+CANCEL_RESERVATION PROC
+    CALL ClearScreen   
+    LEA DX, reservation_head                      
+    CALL DisplayString
+    LEA DX, cancelReservation
+    CALL DisplayString 
+
+ENTER_AGAIN6:                                                                                                     
+    LEA DX, choicePrompt 
+    CALL DisplayString
+    MOV AH, 01H
+    int 21H
+    MOV reservationYX, AL
+
+    CMP reservationYX, "Y"  
+    JE valid_Choice1   
+    CMP reservationYX, "y"
+    JE valid_Choice1
+    CMP reservationYX, "X"
+    JE valid_Choice1  
+    CMP reservationYX, "x"
+    JE valid_Choice1
+    
+    JMP ENTER_AGAIN6
+
+valid_Choice1:
+    CMP reservationYX, "Y"  
+    JE check_reservation_count   
+    CMP reservationYX, "y"
+    JE check_reservation_count
+    
+    JMP RESERVATION    
+    
+check_reservation_count:
+    MOV AX, reservationCount
+    CMP AL, 0
+    JE NO_RESERVATION  
+    
+    JMP LISTING_RESERVATION  
+    
+    
+NO_RESERVATION:                                                  
+    LEA DX, noReservation 
+    CALL DisplayString 
+    
+ENTER_AGAIN7:
+    LEA DX, choicePrompt 
+    CALL DisplayString 
+    MOV AH, 01H
+    int 21H   
+    
+    CMP AL, "Y"  
+    JE CALL_MAKE_RESERVATION2   
+    CMP AL, "y"
+    JE CALL_MAKE_RESERVATION2
+    CMP AL, "N"
+    JE CALL_RESERVATION  
+    CMP AL, "n"
+    JE CALL_RESERVATION
+    
+    JMP ENTER_AGAIN7  
+    
+CALL_MAKE_RESERVATION2:
+    CALL MAKE_RESERVATION
+    RET     
+    
+CALL_RESERVATION: 
+    CALL RESERVATION
+    RET                    
+    
+LISTING_RESERVATION:
+    LEA DX, reservation_cancel
+    CALL DisplayString  
+
+    MOV SI, 0
+    MOV DI, 0
+    MOV BX, 0030H
+    MOV CX, 0F00H 
+    LISTING:
+        LEA DX, line1
+        CALL DisplayString
+	    ADD CL, 0DH               ;ADD COL
+	    ADD CH, 01H               ;ADD ROW
+        CALL CenterCursor
+	    ADD BX, 0001H
+        MOV DX, BX
+        MOV AH, 02H
+        INT 21H
+
+	    ADD CL, 08H 			;1015
+        CALL CenterCursor
+	    LEA DX, [dates + SI]
+	    CALL DisplayString
+
+	    ADD CL, 1AH 			;102F
+        CALL CenterCursor
+	    LEA DX, [times + DI]
+	    CALL DisplayString
+
+
+	;ADD CH, 01H
+	;MOV CL, 00H			;1100
+	;CALL CenterCursor
+        ;LEA DX, line2
+        ;CALL DisplayString 
+        ADD CH, 02H
+	MOV CL, 00H
+	CALL CenterCursor
+	    INC loopCounter
+	    ADD SI, 11
+            ADD DI, 6
+	    
+	    MOV AX, reservationCount
+	    MOV DX, loopCounter
+	    CMP AX, DX
+	    JE ENDING
+	    JMP LISTING
+	
+    LEA DX, reservationSelection
+	CALL DisplayString
+	MOV AH, 01H
+	INT 21H
+	JMP ENDING
 
     
-
-    JMP ENDING
-
+CANCEL_RESERVATION ENDP
+    
 parseDayMonth:           ;X10 + NEXT NUMBER   
     MOV AL, [DI]            
     SUB AL, '0'               
     MOV BL, 10      
-    MUL BL     
+    MUL BL                                                                              
     INC DI
     ADD AL, [DI]
     SUB AL, '0'    
      
     RET              
 
-ENDING:
-MAIN ENDP
+ENDING:   
+MOV AH, 4CH
+INT 21H
+
 END MAIN
