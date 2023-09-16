@@ -26,7 +26,7 @@ welcome_msg db 0AH
             db " \____||__|__||__| |_____|", 0AH
 
 db 0AH, "Press any key to continue...$"   
-continue db "Press any key to continue...$"
+continue db 0DH,0AH,"Press any key to continue...$"
 
 main_msg db 0AH
          db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
@@ -93,6 +93,8 @@ line1 db "          | 0  |                       |                   |", 0AH
 enter_msg db 0AH, "Enter Your Choice: $"
 reservationSelection_cancel db 0AH, "Select which reservation to cancel: NO $"  
 reservationSelection_modify db 0AH, "Select which reservation to modify: NO $"
+newDate db 0AH, "Enter new date: $"   
+newTime db 0AH, "Enter new time: $"
 invalid_choice db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"   
 invalid_YN db 0AH, "[Error] Please Enter (Y/N) ONLY!$"  
 invalidYX db 0AH, "[Error] Please Enter (Y/X) ONLY!$" 
@@ -153,6 +155,16 @@ timeInput label byte
     max6 db 6 
     act6 db ?
     inputTime db 7 dup("$")       
+    
+newDateInput label byte
+    max7 db 11 
+    act7 db ?
+    inputNewDate db 12 dup("$")  
+    
+newTimeInput label byte
+    max8 db 6 
+    act8 db ?
+    inputNewTime db 7 dup("$")  
                                          
     confirmMake db 0DH,0AH, "Confirm to MAKE this reservation (Y/N): $" 
     confirmCancel db 0DH,0AH, "Confirm to CANCEL this reservation (Y/N): $"
@@ -198,8 +210,10 @@ timeInput label byte
     hh db 0
     mm db 0     
     cancelNo db ?  
-    dateIndex db ? 
-    timeIndex db ?
+    dateIndex dw ? 
+    timeIndex dw ?     
+    dateCounter db 0
+    timeCounter db 0
 
 
 .CODE
@@ -446,8 +460,10 @@ enter_guest:
 invalid_Guest:
     LEA DX, invaildGuest
     CALL DisplayString
-    JMP enter_guest
-
+    JMP enter_guest   
+    
+    
+    
 ENTER_AGAIN3:   
     LEA SI, inputDate
     XOR AL, AL                    
@@ -455,7 +471,7 @@ ENTER_AGAIN3:
     DATE_CLEANING:
         MOV [SI], AL             ;clean inputDate = "$$$$$$$$$$"
         INC SI
-	MOV BL, [SI]
+	    MOV BL, [SI]
         CMP BL, "$"
         JNE DATE_CLEANING     
 
@@ -639,8 +655,9 @@ valid_day:
        MOV dates[SI], BL  
        INC DI
        INC SI
-       LOOP COPY10
-    
+       LOOP COPY10  
+
+        
     enter_time:      
         LEA SI, inputTime
         XOR AL, AL
@@ -948,7 +965,7 @@ LISTING_RESERVATION:
 	    MOV AX, reservationCount
 	    MOV DX, loopCounter
 	    CMP AX, DX                                                  
-	    JNE LISTING
+	    JNE LISTING                                                      
               
 SELECT_CANCEL_RESERVATION:
     LEA DX, reservationSelection_cancel
@@ -962,20 +979,21 @@ SELECT_CANCEL_RESERVATION:
 	SUB AL, "0"
 	CMP AL, CL
 	JG INVALID_RESERVATION_NO
-	CMP AL, CL
+	CMP AL, 1
 	JL INVALID_RESERVATION_NO     
 	
 	MOV BL, 11
 	MUL BL                              ;DATE: EG [2]X11-11 = 11
 	SUB AX, 11
-	MOV dateIndex, AL  
+	MOV dateIndex, AX  
 	         
 	MOV AL, cancelNo
 	SUB AL, "0"
-	MOV BL, 6                           ;TIME: EG [2]X6-6 = 7
-	MUL BL
-	SUB AX, 6
-	MOV timeIndex, AL  
+	MOV BL, 6                           ;TIME: EG [2]X6-6 = 6
+	MUL BL                              ;USER ONLY SELECT WHICH RESERVATION ONLY, (1,2,3,4,5)
+	SUB AX, 6                           ;I NEED TO TRANSFORM THE (1,2,3,4,5) TO DATE/TIME INDEX
+	MOV timeIndex, AX   	
+            
 	
 CANCEL_CONFIRMATION:	
 	LEA DX, confirmCancel
@@ -1011,7 +1029,119 @@ valid_YN2:
     
     CALL CANCEL_RESERVATION                                                                                   
     
-SUCESS_CANCEL:
+SUCESS_CANCEL:              
+
+    DATE_CLEARING:
+	
+	MOV CX, 10
+    MOV SI, dateIndex       
+    ADD SI, 10
+    SUB SI, 1
+    REPLACE_DATE_$$$:                           ;CLEARING DATE
+
+        MOV [dates+SI], "$"   
+        DEC SI
+        LOOP REPLACE_DATE_$$$  
+        
+        
+        
+    DATE_FORWARD_OUTER:                ;MOVING DATES FORWARD TO FILL EMPTY SPACE, EASY DO LISTING
+      
+        MOV dateCounter, 0       
+                 
+        MOV SI, dateIndex               ;11                 ;"$$$$$$$$$$$" <- SI FOR THIS
+        MOV DI, dateIndex               ;11                 ;"23/01/2021$" <- DI FOR THIS
+        ADD DI, 11                      ;11 + 11 = 22
+        
+        MOV CX, 10 
+        ADD SI, CX                     ;SI 21
+        ADD DI, CX                     ;DI 32
+        SUB SI, 1                      ;SI 20
+        SUB DI, 1                      ;DI 31   
+        
+        DATE_FORWARD_INNER:
+
+            MOV AL, [dates+SI]
+            MOV BL, [dates+DI]   
+        
+            XCHG AL, BL                   ;CHANGING EVERY CHARACTER, STARTING FROM BACK
+
+            MOV [dates+SI], AL
+            MOV [dates+DI], BL 
+        
+            DEC SI
+            DEC DI
+            INC dateCounter
+            LOOP DATE_FORWARD_INNER   
+            
+        CMP dateIndex, 33                 ;THE FORTH STRING STOP
+        JE TIME_CLEARING        
+        
+        CMP dateCounter, 10                   ;LENGTH FOR EACH DATE STRING IS 10
+        JE TO_NEXT_DATE        
+        JMP TIME_CLEARING               
+        
+TO_NEXT_DATE:     
+    ADD dateIndex, 11 
+    JMP DATE_FORWARD_OUTER
+        
+        
+TIME_CLEARING:        
+        
+        
+    MOV CX, 5
+    MOV SI, timeIndex       
+    ADD SI, 5
+    SUB SI, 1
+    REPLACE_TIME_$$$:
+                                              ;CLEARING TIME
+        MOV [times+SI], "$"   
+        DEC SI
+        LOOP REPLACE_TIME_$$$         
+        
+    TIME_FORWARD_OUTER:
+      
+        MOV timeCounter, 0       
+                 
+        MOV SI, timeIndex               ;6                 ;"$$$$$$" <- SI FOR THIS
+        MOV DI, timeIndex               ;6                 ;"15:11$" <- DI FOR THIS
+        ADD DI, 6                      ;6 + 6 = 12
+        
+        MOV CX, 5 
+        ADD SI, CX                     ;SI 12
+        ADD DI, CX                     ;DI 18
+        SUB SI, 1                      ;SI 11
+        SUB DI, 1                      ;DI 17   
+        
+        TIME_FORWARD_INNER:
+
+            MOV AL, [times+SI]
+            MOV BL, [times+DI]   
+        
+            XCHG AL, BL                   ;CHANGING EVERY CHARACTER, STARTING FROM BACK
+
+            MOV [times+SI], AL
+            MOV [times+DI], BL 
+        
+            DEC SI
+            DEC DI
+            INC timeCounter
+            LOOP TIME_FORWARD_INNER   
+            
+        CMP timeIndex, 18                 ;THE FORTH STRING STOP
+        JE PRINT_SUCESS_CANCEL        
+        
+        CMP timeCounter, 5                   ;LENGTH FOR EACH DATE STRING IS 5
+        JE TO_NEXT_TIME        
+        JMP PRINT_SUCESS_CANCEL               
+        
+TO_NEXT_TIME:     
+    ADD timeIndex, 6 
+    JMP TIME_FORWARD_OUTER 
+    
+    
+    
+PRINT_SUCESS_CANCEL:
     LEA DX, cancelSucessMsg      
     CALL DisplayString    
     LEA DX, continue
@@ -1020,7 +1150,9 @@ SUCESS_CANCEL:
     MOV AH, 0 
     INT 16H      
     
-    SUB reservationCount, 1 
+    SUB reservationCount, 1  
+    SUB datesPointer, 11
+    SUB timesPointer, 6
    
     
     JMP RESERVATION   
@@ -1165,20 +1297,31 @@ SELECT_MODIFY_RESERVATION:
 	SUB AL, "0"
 	CMP AL, CL
 	JG INVALID_RESERVATION_NO1
-	CMP AL, CL
+	CMP AL, 1
 	JL INVALID_RESERVATION_NO1     
 	
 	MOV BL, 11
 	MUL BL                              ;DATE: EG [2]X11-11 = 11
 	SUB AX, 11
-	MOV dateIndex, AL  
+	MOV dateIndex, AX  
 	         
 	MOV AL, cancelNo
 	SUB AL, "0"
 	MOV BL, 6                           ;TIME: EG [2]X6-6 = 7
 	MUL BL
 	SUB AX, 6
-	MOV timeIndex, AL  
+	MOV timeIndex, AX 
+	
+MODIFYING:
+    LEA DX, newDate
+    CALL DisplayString 
+    LEA DX, newDateInput
+    MOV AH, 0AH
+    INT 21H
+    
+    
+    LEA DX, newTime
+    CALL DisplayString 
 	
 MODIFY_CONFIRMATION:	
 	LEA DX, confirmModify
