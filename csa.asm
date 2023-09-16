@@ -208,7 +208,9 @@ newTimeInput label byte
     sys_year dw 0     
     
     hh db 0
-    mm db 0     
+    mm db 0
+    hh8 db 0
+    mm8 db 0     
     cancelNo db ?  
     dateIndex dw ? 
     timeIndex dw ?     
@@ -491,162 +493,20 @@ ENTER_AGAIN3:
     MOV AL, [SI+10]
     CMP AL, '$'
     JE invalid_Date_Format   
-    JMP PARSING
+    JMP DATE_CHECKING
 
 
 invalid_Date_Format:
     LEA DX, invalidDateFormat
     CALL DisplayString
-    JMP ENTER_AGAIN3
-
-PARSING:    
-          
-    LEA DI, inputDate     
-    CALL parseDayMonth         ;PARSE DAY
-    MOV day, AL  
-    
-    ADD DI, 2  
-    CALL parseDayMonth         ;PARSE MONTH
-    MOV month, AL 
-     
-    ADD DI, 2                  ;PARSE YEAR
-    
-    MOV AL, [DI]            
-    SUB AL, '0'     ;2         
-    MOV BL, 10     ;20
-    MUL BL     
-    INC DI
-    ADD AL, [DI]  ;22
-    SUB AL, '0'   
-    MUL BL       ;220
-    INC DI
-    ADD AL, [DI]  ;222
-    SUB AL, '0'
-    MUL BL          ;2220
-    INC DI
-    ADD AL, [DI]       ;2222
-    SUB AL, '0'         
-    MOV year, AX
-    
-                      
-    MOV AH,2AH           ; To get System Date
-    INT 21H
-    MOV sys_day, DL      ; Day is in DL    
-    MOV sys_month,DH     ; Month is in DH  
-    MOV sys_year, CX     ; Year is in CX
-    
-    
-                  
-    CMP year, CX 
-    JL invalid_year_less  
-    CMP year, 2025              ;valid year
-    JG invalid_year_more        
-    JMP MONTH_VALIDATION
-
-invalid_year_less:   
-    LEA DX, invalidYearL
-    CALL DisplayString  
-    JMP ENTER_AGAIN3
-
-invalid_year_more:
-    LEA DX, invalidYearG
-    CALL DisplayString         
-    JMP ENTER_AGAIN3
-
-    
-MONTH_VALIDATION:
-    CMP month, 1
-    JL invalid_month            ;valid month
-    CMP month, 12
-    JG invalid_month  
-    JMP DAY_VALIDATION
-
-invalid_month:                                                      
-    LEA DX, invalidMonth
-    CALL DisplayString         
-    JMP ENTER_AGAIN3  
-
-DAY_VALIDATION:    
-    CMP month, 2 
-    JE check_leap_year          ;valid day, check which month first
-    CMP month, 4 
-    JE check_day30
-    CMP month, 6 
-    JE check_day30
-    CMP month, 9 
-    JE check_day30
-    CMP month, 11 
-    JE check_day30
-
-    CMP day, 1
-    JL invalid_day1
-    CMP day, 31                ;all months with 31days
-    JG invalid_day31    
-    JMP valid_day  
-                                      
-check_leap_year:
-    MOV AX, year
-    MOV BX, 100
-    MOV DX, 0000H 
-    DIV BX                ;2024/100, 20INAX 24INDX
-    
-    
-    MOV AL, DL
-    MOV BL, 4             ;24/4 IF REM IS 0 = LEAP
-    DIV BL
-    CMP AH, 0
-    JNZ not_leap_year
-       
-    CMP day, 1
-    JL invalid_day1   
-    CMP day, 29
-    JLE valid_day  
-    JMP invalid_day29
-   
-
-not_leap_year:  
-    CMP day, 1
-    JL invalid_day1
-    CMP day, 28
-    JLE valid_day
-    JMP invalid_day28
-    
-check_day30:  
-    CMP day, 1                        ;TODO: TEST ZERO
-    JL  invalid_day1
-    CMP day, 30
-    JLE valid_day  
-    JMP invalid_day30
-
-invalid_day1:
-    LEA DX, invalidDay1
-    CALL DisplayString         
-    JMP ENTER_AGAIN3 
-
-invalid_day30:
-    LEA DX, invalidDay30
-    CALL DisplayString         
-    JMP ENTER_AGAIN3   
-    
-invalid_day31:
-    LEA DX, invalidDay31
-    CALL DisplayString         
     JMP ENTER_AGAIN3 
     
-invalid_day29: 
-    LEA DX, invalidDay29
-    CALL DisplayString         
-    JMP ENTER_AGAIN3 
-
-invalid_day28:
-    LEA DX, invalidDay28
-    CALL DisplayString         
-    JMP ENTER_AGAIN3 
-                
-
-
-valid_day:          
     
+DATE_CHECKING:
+    LEA DI, inputDate
+    CALL DATE_VALIDATION     ;VALIDATION HERE
+
+
     MOV SI, datesPointer  
     LEA DI, inputDate
     MOV CX, 10
@@ -658,17 +518,16 @@ valid_day:
        LOOP COPY10  
 
         
-    enter_time:      
-        LEA SI, inputTime
-        XOR AL, AL
+ENTER_TIME:      
+    LEA SI, inputTime
+    XOR AL, AL
         
-        TIME_CLEANING:
-            MOV [SI], AL             ;clean inputTime = "$$$$$"
-            INC SI
+    TIME_CLEANING:
+        MOV [SI], AL             ;clean inputTime = "$$$$$"
+        INC SI
 	    MOV BL, [SI]
-            CMP BL, "$"
-            JNE TIME_CLEANING   
-        
+        CMP BL, "$"
+        JNE TIME_CLEANING         
         
         LEA DX, timePrompt  
         CALL DisplayString 
@@ -676,13 +535,11 @@ valid_day:
         MOV AH, 0AH
         INT 21H      
         
-        LEA SI, inputTime
-                
+        LEA SI, inputTime            
         CMP inputTime[2], ':'
         JNE invalid_Time_Format  
         CMP inputTime[5], '$'
-        JE invalid_Time_Format
-           
+        JE invalid_Time_Format    
                       
         MOV AL, inputTime[0] 
         SUB AL, '0' 
@@ -703,30 +560,29 @@ valid_day:
         ADD AL, AH
         MOV mm, AL 
         
-        JMP valid_time
+        JMP VALIDIATE_TIME
 
 invalid_Time_Format:  
     LEA DX, invalidTimeFormat
     CALL DisplayString         
-    JMP enter_time  
-    
-valid_time:                                                                                  
+    JMP ENTER_TIME  
+  
+VALIDIATE_TIME:                                                                                  
     CMP hh, 10           
     JL invalid_time_early
     CMP hh, 20           
     JG invalid_time_late           
-
     JMP check_minutes     
  
 invalid_time_early:
     LEA DX, invalidTimeE
     CALL DisplayString         
-    JMP enter_time     
+    JMP ENTER_TIME     
     
 invalid_time_late:
     LEA DX, invalidTimel
     CALL DisplayString         
-    JMP enter_time
+    JMP ENTER_TIME
 
 check_minutes:
     CMP mm, 0
@@ -1298,8 +1154,15 @@ SELECT_MODIFY_RESERVATION:
 	CMP AL, CL
 	JG INVALID_RESERVATION_NO1
 	CMP AL, 1
-	JL INVALID_RESERVATION_NO1     
-	
+	JL INVALID_RESERVATION_NO1      
+	JMP MOVE_INDEX
+
+INVALID_RESERVATION_NO1:
+    LEA DX, invalidCancelNo	 
+    CALL DisplayString
+    JMP SELECT_MODIFY_RESERVATION   
+
+MOVE_INDEX:	
 	MOV BL, 11
 	MUL BL                              ;DATE: EG [2]X11-11 = 11
 	SUB AX, 11
@@ -1312,16 +1175,127 @@ SELECT_MODIFY_RESERVATION:
 	SUB AX, 6
 	MOV timeIndex, AX 
 	
-MODIFYING:
+ENTER_NEW_DATE:
+   
+    LEA SI, inputNewDate
+    XOR AL, AL                    
+    
+    DATE_CLEANING1:
+        MOV [SI], AL             ;clean inputDate = "$$$$$$$$$$"
+        INC SI
+	    MOV BL, [SI]
+        CMP BL, "$"
+        JNE DATE_CLEANING1     
+
     LEA DX, newDate
-    CALL DisplayString 
+    CALL DisplayString			    ;enter date
     LEA DX, newDateInput
     MOV AH, 0AH
     INT 21H
+
+    LEA SI, inputNewDate  
+    MOV AL, [SI+2]
+    CMP AL, '/'   
+    JNE invalid_Date_Format1   
+    MOV AL, [SI+5]
+    CMP AL, '/'
+    JNE invalid_Date_Format1  
+    MOV AL, [SI+10]
+    CMP AL, '$'
+    JE invalid_Date_Format1   
+    JMP NEW_DATE_CHECKING
+
+
+invalid_Date_Format1:
+    LEA DX, invalidDateFormat
+    CALL DisplayString
+    JMP ENTER_NEW_DATE 
     
     
-    LEA DX, newTime
-    CALL DisplayString 
+NEW_DATE_CHECKING:
+    LEA DI, inputNewDate
+    CALL DATE_VALIDATION     ;VALIDATION HERE
+    
+   
+     
+ENTER_NEW_TIME:      
+    LEA SI, inputNewTime
+    XOR AL, AL
+        
+    TIME_CLEANING1:
+        MOV [SI], AL             ;clean inputTime = "$$$$$"
+        INC SI
+	    MOV BL, [SI]
+        CMP BL, "$"
+        JNE TIME_CLEANING1         
+        
+        LEA DX, newTime  
+        CALL DisplayString 
+        LEA DX, newTimeInput
+        MOV AH, 0AH
+        INT 21H      
+        
+        LEA SI, inputNewTime            
+        CMP inputNewTime[2], ':'
+        JNE invalid_Time_Format1  
+        CMP inputNewTime[5], '$'
+        JE invalid_Time_Format1    
+                      
+        MOV AL, inputNewTime[0] 
+        SUB AL, '0' 
+        MOV DL, 10
+        MUL DL
+                 
+        MOV AH, inputNewTime[1] 
+        SUB AH, '0'  
+        ADD AL, AH
+        MOV hh8, AL
+                
+        MOV AL, inputNewTime[3] 
+        SUB AL, '0'
+        MUL DL          
+        
+        MOV AH, inputNewTime[4] 
+        SUB AH, '0'  
+        ADD AL, AH
+        MOV mm8, AL 
+        
+        JMP VALIDIATE_TIME1
+
+invalid_Time_Format1:  
+    LEA DX, invalidTimeFormat
+    CALL DisplayString         
+    JMP ENTER_NEW_TIME  
+  
+VALIDIATE_TIME1:                                                                                  
+    CMP hh8, 10           
+    JL invalid_time_early1
+    CMP hh8, 20           
+    JG invalid_time_late1           
+    JMP check_minutes1     
+ 
+invalid_time_early1:
+    LEA DX, invalidTimeE
+    CALL DisplayString         
+    JMP ENTER_NEW_TIME     
+    
+invalid_time_late1:
+    LEA DX, invalidTimel
+    CALL DisplayString         
+    JMP ENTER_NEW_TIME
+
+check_minutes1:
+    CMP mm8, 0
+    JL invalid_min1
+    CMP mm8, 59
+    JG invalid_min1 
+    JMP MODIFY_CONFIRMATION
+     
+invalid_min1:
+    LEA DX, invalidMin
+    CALL DisplayString         
+    JMP ENTER_NEW_TIME
+         
 	
 MODIFY_CONFIRMATION:	
 	LEA DX, confirmModify
@@ -1343,11 +1317,6 @@ MODIFY_CONFIRMATION:
     CALL DisplayString
     JMP MODIFY_CONFIRMATION                                                                 
 	
-
-INVALID_RESERVATION_NO1:
-    LEA DX, invalidCancelNo	 
-    CALL DisplayString
-    JMP SELECT_MODIFY_RESERVATION
     
 valid_YN3:
     CMP AL, "Y"
@@ -1357,7 +1326,30 @@ valid_YN3:
     
     CALL MODIFY_RESERVATION                                                                                   
     
-SUCESS_MODIFY:
+SUCESS_MODIFY:  
+
+    MOV SI, dateIndex  
+    LEA DI, inputNewDate
+    MOV CX, 10
+    COPY10_2:                                  ;copy date to dates
+       MOV BX, [DI]
+       MOV dates[SI], BL  
+       INC DI
+       INC SI
+       LOOP COPY10_2  
+       
+       
+    MOV SI, timeIndex  
+    LEA DI, inputNewTime
+    MOV CX, 5
+    COPY5_2:                                  ;copy time to times
+       MOV BX, [DI]
+       MOV times[SI], BL  
+       INC DI
+       INC SI
+       LOOP COPY5_2
+       
+           
     LEA DX, modifySucessMsg      
     CALL DisplayString    
     LEA DX, continue
@@ -1371,6 +1363,163 @@ SUCESS_MODIFY:
     RET
     
 MODIFY_RESERVATION ENDP  
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+DATE_VALIDATION PROC         
+         
+    CALL parseDayMonth         ;PARSE DAY
+    MOV day, AL  
+    
+    ADD DI, 2  
+    CALL parseDayMonth         ;PARSE MONTH
+    MOV month, AL 
+     
+    ADD DI, 2                  ;PARSE YEAR
+    
+    MOV AL, [DI]            
+    SUB AL, '0'     ;2         
+    MOV BL, 10     ;20
+    MUL BL     
+    INC DI
+    ADD AL, [DI]  ;22
+    SUB AL, '0'   
+    MUL BL       ;220
+    INC DI
+    ADD AL, [DI]  ;222
+    SUB AL, '0'
+    MUL BL          ;2220
+    INC DI
+    ADD AL, [DI]       ;2222
+    SUB AL, '0'         
+    MOV year, AX
+    
+                      
+    MOV AH,2AH           ; To get System Date
+    INT 21H
+    MOV sys_day, DL      ; Day is in DL    
+    MOV sys_month,DH     ; Month is in DH  
+    MOV sys_year, CX     ; Year is in CX
+    
+    
+                  
+    CMP year, CX 
+    JL invalid_year_less  
+    CMP year, 2025              ;valid year
+    JG invalid_year_more        
+    JMP MONTH_VALIDATION
+
+invalid_year_less:   
+    LEA DX, invalidYearL
+    CALL DisplayString  
+    JMP ENTER_AGAIN3
+
+invalid_year_more:
+    LEA DX, invalidYearG
+    CALL DisplayString         
+    JMP ENTER_AGAIN3
+
+    
+MONTH_VALIDATION:
+    CMP month, 1
+    JL invalid_month            ;valid month
+    CMP month, 12
+    JG invalid_month  
+    JMP DAY_VALIDATION
+
+invalid_month:                                                      
+    LEA DX, invalidMonth
+    CALL DisplayString         
+    JMP ENTER_AGAIN3  
+
+DAY_VALIDATION:    
+    CMP month, 2 
+    JE check_leap_year          ;valid day, check which month first
+    CMP month, 4 
+    JE check_day30
+    CMP month, 6 
+    JE check_day30
+    CMP month, 9 
+    JE check_day30
+    CMP month, 11 
+    JE check_day30
+
+    CMP day, 1
+    JL invalid_day1
+    CMP day, 31                ;all months with 31days
+    JG invalid_day31    
+    JMP valid_day  
+                                      
+check_leap_year:
+    MOV AX, year
+    MOV BX, 100
+    MOV DX, 0000H 
+    DIV BX                ;2024/100, 20INAX 24INDX
+    
+    
+    MOV AL, DL
+    MOV BL, 4             ;24/4 IF REM IS 0 = LEAP
+    DIV BL
+    CMP AH, 0
+    JNZ not_leap_year
+       
+    CMP day, 1
+    JL invalid_day1   
+    CMP day, 29
+    JLE valid_day  
+    JMP invalid_day29
+   
+
+not_leap_year:  
+    CMP day, 1
+    JL invalid_day1
+    CMP day, 28
+    JLE valid_day
+    JMP invalid_day28
+    
+check_day30:  
+    CMP day, 1                        ;TODO: TEST ZERO
+    JL  invalid_day1
+    CMP day, 30
+    JLE valid_day  
+    JMP invalid_day30
+
+invalid_day1:
+    LEA DX, invalidDay1
+    CALL DisplayString         
+    JMP ENTER_AGAIN3 
+
+invalid_day30:
+    LEA DX, invalidDay30
+    CALL DisplayString         
+    JMP ENTER_AGAIN3   
+    
+invalid_day31:
+    LEA DX, invalidDay31
+    CALL DisplayString         
+    JMP ENTER_AGAIN3 
+    
+invalid_day29: 
+    LEA DX, invalidDay29
+    CALL DisplayString         
+    JMP ENTER_AGAIN3 
+
+invalid_day28:
+    LEA DX, invalidDay28
+    CALL DisplayString         
+    JMP ENTER_AGAIN3 
+                
+
+
+valid_day:   
+    RET
+    
+DATE_VALIDATION ENDP
 
 
     
