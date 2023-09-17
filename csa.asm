@@ -5,7 +5,7 @@ newLine DB 0DH,0AH,"$"
 welcome_msg db 0AH
             db " __ __    ___  ____   __ __ ", 0AH
             db "|  |  |  /  _]|    \ |  |  |", 0AH
-            db "|  |  | /  [_ |  D  )|  |  |", 0AH 
+            db "|  |  | /  [_ |  D  )|  |  |", 0AH
             db "|  |  ||    _]|    / |  ~  |", 0AH
             db "|  :  ||   [_ |    \ |___, |", 0AH
             db " \   / |     ||  .  \|     |", 0AH
@@ -24,8 +24,8 @@ welcome_msg db 0AH
             db "/   \_ |  _  ||   _]   [_ ", 0AH
             db "\     ||  |  ||  | |     |", 0AH
             db " \____||__|__||__| |_____|", 0AH
+            db 0AH, "Press any key to continue...$"
 
-db 0AH, "Press any key to continue...$"   
 continue db 0DH,0AH,"Press any key to continue...$"
 
 main_msg db 0AH
@@ -40,7 +40,23 @@ main_msg db 0AH
          db "|                     [ 2 ] Cart                             |", 0AH
          db "|                     [ 3 ] Reservation                      |", 0AH
          db "|                     [ 4 ] Exit                             |", 0AH
-         db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+         db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+         db "Enter Your Choice: $"
+
+menu_msg db 0AH
+         db "++++++++++++++++++++++++++++++++", 0AH
+         db "|   _   _  ___   _  _   _  _   |", 0AH
+         db "|  ) \_/ () __( ) \/ ( ) () (  |", 0AH
+         db "|  |  _  || _)  |  \ | | \/ |  |", 0AH
+         db "|  )_( )_()___( )_()_( )____(  |", 0AH
+         db "|                              |", 0AH
+         db "++++++++++++++++++++++++++++++++", 0AH
+         db "|   [ 1 ] Food Menu            |", 0AH
+         db "|   [ 2 ] Beverage Menu        |", 0AH
+         db "|   [ 3 ] Dessert Menu         |", 0AH
+         db "|   [ 4 ] Back to Main Menu    |", 0AH
+         db "++++++++++++++++++++++++++++++++", 0AH
+         db "Enter Your Choice: $"
 
 reservation_msg db 0AH
                 db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
@@ -54,8 +70,8 @@ reservation_msg db 0AH
                 db "|                         [ 2 ] Modify Reservation                           |", 0AH
                 db "|                         [ 3 ] Cancel Reservation                           |", 0AH
                 db "|                         [ 4 ] Back to Main Menu                            |", 0AH
-                db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"    
-                
+                db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+
 reservation_head db 0AH
                 db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
                 db "|  ____   ___    ___   ___   ____   _   _    _    _____   ___   ____   _  _  |", 0AH
@@ -88,26 +104,157 @@ datetime_head db 0AH
 line1 db "          | 0  |                       |                   |", 0AH
       db "          --------------------------------------------------", 0AH, "$"
 
+food_menu db 0AH
+          db "++++++++++++++++++++++++++++++++++++++++", 0AH
+          db "|       ___   ____   ____   ___        |", 0AH
+          db "|      ) __( / __ \ / __ \ \   \       |", 0AH
+          db "|      | _)  ))__(( ))__(( | ) (       |", 0AH
+          db "|      )_(   \____/ \____/ /___/       |", 0AH
+          db "|                                      |", 0AH
+          db "++++++++++++++++++++++++++++++++++++++++", 0AH
+          db "| Western Food            | Price (RM) |", 0AH
+          db "++++++++++++++++++++++++++++++++++++++++", 0AH
+          db "| A | Fish and Chips      |      18.00 |", 0AH
+          db "| B | Burger and Fries    |      19.50 |", 0AH
+          db "| C | Macaroni and Cheese |      16.00 |", 0AH
+          db "++++++++++++++++++++++++++++++++++++++++", 0AH
+          db "| Eastern Food                         |", 0AH
+          db "++++++++++++++++++++++++++++++++++++++++", 0AH
+          db "| D | Nasi Biryani Ayam   |      15.50 |", 0AH
+          db "| E | Laksa               |      10.00 |", 0AH
+          db "| F | Char Kuey Teow      |      10.50 |", 0AH
+          db "++++++++++++++++++++++++++++++++++++++++", 0AH
+          db "Enter Item Number (X = Back to Menu): $"
 
+beverage_menu db 0AH
+              db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+              db "|   ___   ___   _   _  ___   ____     _    ____   ___   |", 0AH
+              db "|  \  _) ) __( \ ( ) /) __( /  _ \   )_\  ).-._( ) __(  |", 0AH
+              db "|  |  (  | _)   )\_/( | _)  )  ' /  /( )\ |( ,-. | _)   |", 0AH
+              db "|  /__o) )___(   \_/  )___( |_()_\ )_/ \_()_`__( )___(  |", 0AH
+              db "|                                                       |", 0AH
+              db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+              db "|                                          | Price (RM) |", 0AH
+              db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+              db "| G | Coffee                               |       6.00 |", 0AH
+              db "| H | Cappuccino                           |       6.50 |", 0AH
+              db "| I | Mojito                               |       7.00 |", 0AH
+              db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+              db "Enter Item Number (X = Back to Menu): $"
 
-enter_msg db 0AH, "Enter Your Choice: $"
-reservationSelection_cancel db 0AH, "Select which reservation to cancel: NO $"  
-reservationSelection_modify db 0AH, "Select which reservation to modify: NO $"
-newDate db 0AH, "Enter new date: $"   
-newTime db 0AH, "Enter new time: $"
-invalid_choice db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"   
-invalid_YN db 0AH, "[Error] Please Enter (Y/N) ONLY!$"  
-invalidYX db 0AH, "[Error] Please Enter (Y/X) ONLY!$" 
-invalidCancelNo db 0AH, "[ERROR] Please enter a valid reservation NO!$"
-                          
+dessert_menu db 0AH
+             db "++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+             db "|   ___   ___    ___    ___   ___   ____   _____   |", 0AH
+             db "|  \   \ ) __(  (  _(  (  _( ) __( /  _ \ )__ __(  |", 0AH
+             db "|  | ) ( | _)   _) \   _) \  | _)  )  ' /   | |    |", 0AH
+             db "|  /___/ )___( )____) )____) )___( |_()_\   )_(    |", 0AH
+             db "|                                                  |", 0AH
+             db "++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+             db "|                                     | Price (RM) |", 0AH
+             db "++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+             db "| J | Egg Tart                        |       5.00 |", 0AH
+             db "| K | Creme Brulee                    |      10.00 |", 0AH
+             db "| L | Cendol                          |       5.50 |", 0AH
+             db "++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+             db "Enter Item Number (X = Back to Menu): $"
+
+cart_msg  db 0AH
+          db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+          db "|               ___    _    ____   _____                |", 0AH
+          db "|              / _(   )_\  /  _ \ )__ __(               |", 0AH
+          db "|              ))_   /( )\ )  ' /   | |                 |", 0AH
+          db "|              \__( )_/ \_(|_()_\   )_(                 |", 0AH
+          db "|                                                       |", 0AH
+          db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+          db "| Item                    | Quantity | Total Price (RM) |", 0AH
+          db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+cartItemA db "| A | Fish and Chips      |       $"
+cartItemB db "| B | Burger and Fries    |       $"
+cartItemC db "| C | Macaroni and Cheese |       $"
+cartItemD db "| D | Nasi Biryani Ayam   |       $"
+cartItemE db "| E | Laksa               |       $"
+cartItemF db "| F | Char Kuey Teow      |       $"
+cartItemG db "| G | Coffee              |       $"
+cartItemH db "| H | Cappuccino          |       $"
+cartItemI db "| I | Mojito              |       $"
+cartItemJ db "| J | Egg Tart            |       $"
+cartItemK db "| K | Creme Brulee        |       $"
+cartItemL db "| L | Cendol              |       $"
+cartSpace1 db " |           $"
+cartSpace2 db " |", 0AH, "$"
+cart_line db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+cartSubtotal db "|                Subtotal |       $"
+cartEnd   db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+          db "Press any key to continue...$"
+cartContinue db 0AH
+             db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+     	     db "|                [ 1 ] Menu                             |", 0AH
+             db "|                [ 2 ] Remove Cart Item                 |", 0AH
+    	     db "|                [ 3 ] Payment                          |", 0AH
+             db "|                [ 4 ] Back to Main Menu                |", 0AH
+             db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+             db "Enter Your Choice: $"
+
+invalid_main db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!"
+             db 0AH, "Press any key to continue...$"
+invalid_menu db 0AH, "[Error] Please Enter A to M and X only!"
+             db 0AH, "Press any key to continue...$"
+invalidCart db 0AH, "[Error] Please Enter X or Y only!"
+            db 0AH, "Press any key to continue...$"
+quantity_msg db 0AH, "Enter Quantity: $"
+confirm_cart db 0AH, "Confirm Add to Cart? (Y = Yes, N = No): $"
+success_cart db 0AH, "Add to Cart Successfully!"
+             db 0AH, "Press any key to continue...$"
+itemRemove db 0AH, "Enter Item Number (X = Back to Cart): $"
+removeSuccessMsg db 0AH, "Item Remove Successfully!", 0AH, "$"
+removeErrorMsg db 0AH, "Item is not in the Cart!", 0AH, "$"
+removeQuantityMsg db 0AH, "Quantity Entered is more than in the Cart!", 0AH, "$"
+max_quantity db 0AH, "[Error] Reached Max Quantity (20)!"
+             db 0AH, "Press any key to continue...$"
+
+menuType db ?
+menuChoice db "ABCDEFGHIJKLM"
+menuPrice dw 1800, 1950, 1600, 1550, 1000, 1050, 600, 650, 700, 500, 1000, 550
+cartQuantity dw 12 dup(0)
+itemTotalPrice dw 12 dup(0)
+userMenuChoice db ?
+tempCartQuantity dw ?
+cartNone db 0
+totalItem dw 0
+subtotal dw 0
+rem dw 0
+quo dw 0
+
+numberAttempt db 15 dup(0)
+attemptMsg db 0AH
+           db "+++++++++++++++++++++++++++++++++++++++", 0AH
+           db "| Number of Attempt                   |", 0AH
+           db "+++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+idAttempt  db "| ID          : $"
+passwordAttempt db "  Password     : $"
+mainMenuAttempt db " |", 0AH, "| Main Menu   : $"
+menuAttempt db "  Menu         : $"
+foodAttempt db " |", 0AH, "| Food Menu   : $"
+beverageAttempt db "  Beverage Menu: $"
+dessertAttempt db " |", 0AH, "| Dessert Menu: $"
+cartAttempt db "  Cart         : $"
+removeAttempt db " |", 0AH, "| Remove Item : $"
+paymentAttempt db "  Payment      : $"
+reservationAttempt db " |", 0AH, "| Reservation : $"
+exitAttempt db "  Exit         : $"
+makeReservationAttempt db " |", 0AH, "| Make Reservation   : $"
+modifyReservationAttempt db "             |", 0AH, "| Modify Reservation : $"
+cancelReservationAttempt db "             |", 0AH, "| Cancel Reservation : $"
+attemptEnd db "             |", 0AH, "+++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+
 accountID db "A1001$"
 password db "ABC12345$"
 
 accountPrompt db "Enter Account ID: $"
 passwordPrompt db "Enter Password: $"
-eraser	DB "          $"
+eraser	DB "            $"
 
-userInput1 label byte                                                                                   
+userInput1 label byte
     max1 db 6 
     act1 db ?
     inputID db 7 dup("$")
@@ -116,13 +263,25 @@ userInput2 label byte
     max2 db 9 
     act2 db ?
     inputPassword db 10 dup("$")
-;---------------------------------------------------------------------------------------------    
+
+
+enter_msg db 0AH, "Enter Your Choice: $"
+reservationSelection_cancel db 0AH, "Select which reservation to cancel: NO $"  
+reservationSelection_modify db 0AH, "Select which reservation to modify: NO $"
+newDate db 0AH, "Enter new date: $"   
+newTime db 0AH, "Enter new time: $"
+invalid_choice db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!$"
+invalid_YN db 0AH, "[Error] Please Enter (Y/N) ONLY!$"  
+invalidYX db 0AH, "[Error] Please Enter (Y/X) ONLY!$" 
+invalidCancelNo db 0AH, "[ERROR] Please enter a valid reservation NO!$"
 
 names db "$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$$$$$$$$$"
 phones db "$$$$$$$$$$$$$", "$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$", "$$$$$$$$$$$$$$"  
 guests db 5 dup(0)
 dates db "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$"   
-times db "$$$$$$", "$$$$$$$", "$$$$$$$", "$$$$$$$", "$$$$$$$"
+times db "$$$$$$", "$$$$$$$", "$$$$$$$", "$$$$$$$", "$$$$$$$" 
+reservedDates db "18/08/2023$", "21/08/2023$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$", "$$$$$$$$$$$$"
+
 makeReservation db 0AH, "[MAKE RESERVATION]", 0AH 
 		   db 0AH, "Enter [Y] to continue, [X] back to reservation menu.$", 0AH, "$"   
 		   
@@ -183,7 +342,7 @@ newTimeInput label byte
     invalidTimeL db 0DH,0AH, "[Error] The last reservation time can be made is 8.00pm!$" 
     invalidMin db 0DH,0AH, "[Error] Invalid minutes. Please enter (00-59) only!$"
  
-    
+    invalidReservedDate db 0DH,0AH, "[Error] This date has been reserved by other people!$"
     invalidYearG db 0DH,0AH, "[Error] You can only make a reservation before year 2025!$" 
     invalidYearL db 0DH,0AH, "[Error] You can only make a reservation in this year and before year 2025!$" 
     invalidMonth db 0DH,0AH, "[Error] Invalid month. Please enter month (01-12) only!$"    
@@ -215,22 +374,26 @@ newTimeInput label byte
     dateIndex dw ? 
     timeIndex dw ?     
     dateCounter db 0
-    timeCounter db 0
-
-
+    timeCounter db 0 
+    
+    reservedDatesPointer dw 0  
+    reservedCopyIndex dw 22
+    reservedCount db 2 
+    charCounter db 0 
+    endingIndex dw 0
+    correct db 10         ;put 10 to avoid go to negative
+    
 .CODE
 MAIN PROC
 MOV AX, @data
 MOV DS, AX
 
 LEA DX, welcome_msg
-MOV AH, 09H
-INT 21H
-
-MOV AH, 0 
-INT 16H
+CALL DisplayString
+CALL PressContinue
 
 enterId:
+    ADD numberAttempt[0], 1
     CALL ClearScreen
     MOV CX, 0919H
     CALL CenterCursor
@@ -252,9 +415,10 @@ enterId:
 	JNE enterId
     	INC SI 
 	INC DI
-    	LOOP checkAccountID 
+    LOOP checkAccountID 
 
 enterPass:
+    ADD numberAttempt[1], 1
     MOV CX, 0B19H
     CALL CenterCursor
     
@@ -275,25 +439,65 @@ enterPass:
     MOV CX, 8
 
     checkPassword:
-    	MOV AL, [SI]
+    MOV AL, [SI]
 	MOV BL, [DI]
 	CMP AL, BL 
     	JNE enterPass 
     	INC SI 
 	INC DI
-    	LOOP checkPassword 
-   
+    LOOP checkPassword 
+
+JMP MAIN_MENU
+
+CART:
+	ADD numberAttempt[7], 1
+	CALL calcCart
+	CALL orderPrint
+	JMP cartChoice
+
+cartChoice:
+	CALL ClearScreen
+	LEA DX, cartContinue
+	CALL DisplayString
+	CALL readCharacter
+	SUB AL, '0'
+
+	CMP AL, 1
+	JE MENU
+	CMP AL, 2
+	JE removeItem
+	CMP AL, 3
+	JE PAYMENT
+	CMP AL, 4
+	JE MAIN_MENU
+
+	CALL userChoiceError
+	LOOP cartChoice
+
+PAYMENT:
+	ADD numberAttempt[9], 1
+	JMP MAIN_MENU               ;to be changed
+
+removeItem:
+	ADD numberAttempt[8], 1
+	LEA DX, itemRemove
+	CALL DisplayString
+    	CALL readCharacter
+	MOV userMenuChoice, AL
+
+    	CMP userMenuChoice, 'X'
+	JE CART
+
+	CALL setLoop
+	MOV DI, 0
+	CALL removeCart
+
 MAIN_MENU:
+    ADD numberAttempt[2], 1
     CALL ClearScreen
     LEA DX, main_msg
     CALL DisplayString
-
-ENTER_AGAIN:
-    LEA DX, enter_msg
-    CALL DisplayString
-
-    MOV AH, 01H
-    INT 21H
+    CALL readCharacter
     SUB AL, '0'
 
     CMP AL, 1
@@ -301,47 +505,619 @@ ENTER_AGAIN:
     CMP AL, 2
     JE CART
     CMP AL, 3
-    JE RESERVATION
+    JE CALL_RESERVATION100
     CMP AL, 4
     JE EXIT
 
-    LEA DX, invalid_choice
+    CALL userChoiceError
+    LOOP MAIN_MENU
+
+CALL_RESERVATION100:
+	CALL RESERVATION
+	RET
+MENU:
+menuEnter:
+	CALL callMenuEnter
+	JMP menuJump
+
+EXIT:
+	CALL callExit
+
+menuJump:
+	CMP menuType, 1
+	JE FOOD
+	CMP menuType, 2
+	JE BEVERAGE
+	CMP menuType, 3
+	JE DESSERT
+	CMP menuType, 4
+	JE MAIN_MENU
+
+	CALL userChoiceError
+	LOOP menuEnter
+
+menuContinue:
+    CALL readCharacter
+	MOV userMenuChoice, AL
+
+    CMP userMenuChoice, 'X'
+	JE MENU
+
+	CALL setLoop
+	MOV DI, 0
+	JMP findItem
+
+findItem:
+	MOV BL, menuChoice[SI]
+	CMP userMenuChoice, BL
+	JE itemFound
+	INC SI
+	ADD DI, 2
+
+	LOOP findItem
+
+	LEA DX, invalid_menu
     CALL DisplayString
-    LEA DX, newLine
-    INT 21H
+	CALL PressContinue
+	JMP menuJump
 
-    JMP ENTER_AGAIN
+itemFound:
+	CALL callItemFound
 
-ClearScreen:
-    MOV AH, 0
-    MOV AL, 3
-    INT 10H
-    RET
+	CMP totalItem, 20
+	JA maxItem
+	MOV tempCartQuantity, AX
+	JMP confirmCart
 
-CenterCursor:
+confirmCart:
+	LEA DX, confirm_cart
+    CALL DisplayString
+    CALL readCharacter
+
+	CMP AL, 'Y'
+    JE addToCart
+    CMP AL, 'N'
+	JE noAddToCart
+
+	LEA DX, invalidCart
+    CALL DisplayString
+	CALL PressContinue
+    LOOP confirmCart
+
+FOOD:
+	CALL callFood
+	JMP menuContinue
+
+BEVERAGE:
+	CALL callBeverage
+	JMP menuContinue
+
+DESSERT:
+	CALL callDessert
+	JMP menuContinue
+
+maxItem:
+	CALL callMaxItem
+	JMP menuJump
+
+addToCart:
+	CALL callAddToCart
+	JMP menuJump
+
+noAddToCart:
+	CALL callNoAddToCart
+	JMP menuJump
+
+MAIN ENDP
+
+ClearScreen PROC
+	MOV AH, 0
+	MOV AL, 3
+	INT 10H
+	RET
+ClearScreen ENDP
+
+CenterCursor PROC
     MOV AH, 02H
     MOV BH, 0
     MOV DH, CH ; Row 
     MOV DL, CL ; Column 
     INT 10H
     RET
+CenterCursor ENDP
 
-DisplayString:
-    MOV AH, 09H
+PressContinue PROC
+	MOV AH, 0 
+	INT 16H
+	RET
+PressContinue ENDP
+
+userChoiceError PROC
+	LEA DX, invalid_main
+    	CALL DisplayString
+	CALL PressContinue
+	RET
+userChoiceError ENDP
+
+DisplayString PROC
+	MOV AH, 09H
+	INT 21H
+	RET
+DisplayString ENDP
+
+DisplayCharacter PROC
+	MOV AH, 02H
+	INT 21H
+	RET
+DisplayCharacter ENDP
+
+readCharacter PROC
+	MOV AH, 01H
+	INT 21H
+	RET
+readCharacter ENDP
+
+setLoop PROC
+    MOV SI, 0
+	MOV CX, 12
+	RET
+setLoop ENDP
+
+exitLoop PROC
+	MOV DL, numberAttempt[SI]
+	MOV DH, 0
+	MOV AX, DX
+	CALL PRINT
+	INC SI
+	RET
+exitLoop ENDP
+
+callMenuEnter PROC
+	ADD numberAttempt[3], 1
+	CALL ClearScreen
+	LEA DX, menu_msg
+    CALL DisplayString
+    CALL readCharacter
+	MOV menuType, AL
+	SUB menuType, '0'
+	RET
+callMenuEnter ENDP
+
+callItemFound PROC
+	LEA DX, quantity_msg
+    CALL DisplayString
+    CALL readCharacter
+	MOV AH, 0
+	SUB AL,'0'
+	ADD totalItem, AX
+	RET
+callItemFound ENDP
+
+callFood PROC
+	ADD numberAttempt[4], 1
+	CALL ClearScreen
+	LEA DX, food_menu
+    CALL DisplayString
+	RET
+callFood ENDP
+
+callBeverage PROC
+	ADD numberAttempt[5], 1
+	CALL ClearScreen
+	LEA DX, beverage_menu
+    CALL DisplayString
+	RET
+callBeverage ENDP
+
+callDessert PROC
+	ADD numberAttempt[6], 1
+	CALL ClearScreen
+	LEA DX, dessert_menu
+    CALL DisplayString
+	RET
+callDessert ENDP
+
+callMaxItem PROC
+	SUB totalItem, AX
+	LEA DX, max_quantity
+	CALL DisplayString
+	CALL PressContinue
+	RET
+callMaxItem ENDP
+
+callAddToCart PROC
+	MOV AX, tempCartQuantity
+	ADD cartQuantity[DI], AX
+
+    LEA DX, success_cart
+    CALL DisplayString
+	CALL PressContinue
+	RET
+callAddToCart ENDP
+
+callNoAddToCart PROC
+	MOV AX, tempCartQuantity
+	SUB totalItem, AX
+	RET
+callNoAddToCart ENDP
+
+calcCart PROC
+	CALL setLoop
+
+totalPriceLoop:
+	MOV AX, menuPrice[SI]
+	MOV BX, cartQuantity[SI]
+	MUL BX
+	MOV itemTotalPrice[SI], AX
+	ADD SI, 2
+
+	LOOP totalPriceLoop
+
+	CALL setLoop
+	MOV subtotal, 0
+
+subtotalLoop:
+	MOV DX, itemTotalPrice[SI]
+	ADD subtotal, DX
+	ADD SI, 2
+	LOOP subtotalLoop
+	RET
+calcCart ENDP
+
+removeCart PROC
+removeloop: 
+	MOV BL, menuChoice[SI]
+	CMP userMenuChoice, BL
+	JE removeContinue
+	INC SI
+	ADD DI,2
+
+	LOOP removeloop
+
+	LEA DX, invalid_menu
+    CALL DisplayString
+	CALL PressContinue
+	JMP removeItem
+
+removeContinue:
+	LEA DX, quantity_msg
+	CALL DisplayString
+	CALL readCharacter
+
+	CMP cartQuantity[DI], 0
+	JE removeError
+	MOV AH, 0
+	SUB AL, '0'
+	CMP cartQuantity[DI], AX
+	JAE removeSuccess
+	JB removeQuantity
+
+removeError:
+	LEA DX, removeErrorMsg
+	CALL DisplayString
+	JMP removeItem
+
+removeQuantity:
+	LEA DX, removeQuantityMsg
+	CALL DisplayString
+	JMP removeItem
+
+removeSuccess:
+	MOV AH, 0
+	SUB cartQuantity[DI], AX
+	SUB totalItem, AX
+
+	LEA DX, removeSuccessMsg
+	CALL DisplayString
+	JMP removeItem
+	RET
+removeCart ENDP
+
+orderPrint PROC
+	CALL ClearScreen
+	MOV SI, 0
+	LEA DX, cart_msg
+	CALL DisplayString
+
+	CMP cartQuantity[SI], 0
+	JE cmpB
+	JNE printA
+printA:
+	LEA DX, cartItemA
+	CALL printOrder
+	MOV cartNone, 1
+cmpB:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpC
+	JNE printB
+printB:
+	LEA DX, cartItemB
+	CALL printOrder
+	MOV cartNone, 1
+cmpC:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpD
+	JNE printC
+printC:
+	LEA DX, cartItemC
+	CALL printOrder
+	MOV cartNone, 1
+cmpD:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpE
+	JNE printD
+printD:
+	LEA DX, cartItemD
+	CALL printOrder
+	MOV cartNone, 1
+cmpE:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpF
+	JNE printE
+printE:
+	LEA DX, cartItemE
+	CALL printOrder
+	MOV cartNone, 1
+cmpF:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpG
+	JNE printF
+printF:
+	LEA DX, cartItemF
+	CALL printOrder
+	MOV cartNone, 1
+cmpG:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpH
+	JNE printG
+printG:
+	LEA DX, cartItemG
+	CALL printOrder
+	MOV cartNone, 1
+cmpH:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpI
+	JNE printH
+printH:
+	LEA DX, cartItemH
+	CALL printOrder
+	MOV cartNone, 1
+cmpI:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpJ
+	JNE printI
+printI:
+	LEA DX, cartItemI
+	CALL printOrder
+	MOV cartNone, 1
+cmpJ:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpK
+	JNE printJ
+printJ:
+	LEA DX, cartItemJ
+	CALL printOrder
+	MOV cartNone, 1
+cmpK:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpL
+	JNE printK
+printK:
+	LEA DX, cartItemK
+	CALL printOrder
+	MOV cartNone, 1
+cmpL:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE noneItem
+	JNE printL
+printL:
+	LEA DX, cartItemL
+	CALL printOrder
+	MOV cartNone, 1
+
+noneItem:
+	CMP cartNone, 1
+	JE printLine
+	JNE printENd
+
+printLine:
+	LEA DX, cart_line
+	CALL DisplayString
+
+printEnd:
+	LEA DX, cartSubtotal
+	CALL DisplayString
+	MOV AX, totalItem
+	CALL PRINT
+	LEA DX, cartSpace1
+	CALL DisplayString
+	MOV AX, subtotal
+	CALL printPrice
+	LEA DX, cartSpace2
+	CALL DisplayString
+	LEA DX, cartEnd
+	CALL DisplayString
+	CALL PressContinue
+	RET
+orderPrint ENDP
+
+callExit PROC
+	ADD numberAttempt[11], 1
+	CALL printExit
+	MOV AX, 4C00H
+	INT 21H
+	RET
+callExit ENDP
+
+printExit PROC
+	CALL ClearScreen
+	MOV SI, 0
+	MOV CX, 15
+	LEA DX, attemptMsg
+	CALL DisplayString
+
+	LEA DX, idAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, passwordAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, mainMenuAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, menuAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, foodAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, beverageAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, dessertAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, cartAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, removeAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, paymentAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, reservationAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, exitAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, makeReservationAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, modifyReservationAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, cancelReservationAttempt
+	CALL DisplayString
+	CALL exitLoop
+	LEA DX, attemptEnd
+	CALL DisplayString
+	RET
+printExit ENDP
+
+printOrder PROC
+	CALL DisplayString
+	MOV DX, cartQuantity[SI]
+	MOV CX, itemTotalPrice[SI]
+
+	MOV AX, DX
+	CALL PRINT
+	LEA DX, cartSpace1
+	CALL DisplayString
+	MOV AX, CX
+	CALL printPrice
+	LEA DX, cartSpace2
+	CALL DisplayString
+	RET
+printOrder ENDP
+
+PRINT PROC           
+    MOV DX, 0000H                  
+    MOV BX, 10
+    
+    DIV BX
+    MOV rem, DX
+    MOV quo, AX 
+    
+    MOV AH, 02H                   
+    MOV DX, quo   
+    ADD DX, '0'
+    INT 21H     
+
+    MOV AH, 02H                   
+    MOV DX, rem   
+    ADD DX, '0'
+    INT 21H  
+    RET        
+PRINT ENDP
+
+printPrice PROC
+    MOV DX, 0000H 
+    MOV BX, 10000
+    
+    DIV BX 
+    MOV rem, DX
+    MOV quo, AX
+    
+    MOV AH, 02H
+    MOV DX, quo   
+    ADD DX, '0'
+    INT 21H 
+
+    MOV AX, rem
+    MOV DX, 0000H
+    MOV BX, 1000
+    
+    DIV BX 
+    MOV rem, DX
+    MOV quo, AX
+    
+    MOV AH, 02H
+    MOV DX, quo   
+    ADD DX, '0'
+    INT 21H               
+    
+    MOV AX, rem   
+    MOV DX, 0000H
+    MOV BX, 100
+    
+    DIV BX
+    MOV rem, DX
+    MOV quo, AX 
+    
+    MOV AH, 02H
+    MOV DX, quo   
+    ADD DX, '0'
+    INT 21H                    
+                           
+    MOV AH, 02H          
+    MOV DL, "."
     INT 21H
-    RET
+    
+    MOV AX, rem   
+    MOV DX, 0000H                  
+    MOV BX, 10
+    
+    DIV BX
+    MOV rem, DX
+    MOV quo, AX 
+    
+    MOV AH, 02H                   
+    MOV DX, quo   
+    ADD DX, '0'
+    INT 21H     
+    
+    MOV AH, 02H                   
+    MOV DX, rem   
+    ADD DX, '0'
+    INT 21H     
+    RET           
+printPrice ENDP
 
-EXIT:
-    MOV AX, 4C00H
-    INT 21H
-
-MENU:
-    JMP MAIN_MENU                ;to be CHanged
-
-CART:
-    JMP MAIN_MENU                ;to be CHanged
-
-RESERVATION:
+RESERVATION PROC
+    ADD numberAttempt[10], 1
     CALL ClearScreen
     LEA DX, reservation_msg
     CALL DisplayString
@@ -361,7 +1137,7 @@ ENTER_AGAIN2:
     CMP AL, 3
     JE CALL_CEANCEL_RESERVATION               
     CMP AL, 4
-    JE MAIN_MENU
+    JE GO_MAIN_MENU
 
     LEA DX, invalid_choice
     CALL DisplayString
@@ -382,7 +1158,12 @@ CALL_MODIFY_RESERVATION:
     CALL MODIFY_RESERVATION
     RET
 
+GO_MAIN_MENU:
+	JMP MAIN_MENU
+RESERVATION ENDP
+
 MAKE_RESERVATION PROC
+    ADD numberAttempt[12], 1
     CALL ClearScreen   
     LEA DX, reservation_head                      
     CALL DisplayString
@@ -401,14 +1182,18 @@ REENTER_CHOICE:
     CMP reservationYX, "y"
     JE valid_YX         
     CMP reservationYX, "X"
-    JE RESERVATION
+    JE CALL_RESERVATION
     CMP reservationYX, "x"
-    JE RESERVATION         
-    
+    JE CALL_RESERVATION         
+ 
     LEA DX, invalidYX
     CALL DisplayString
     JMP REENTER_CHOICE   
-     
+
+CALL_RESERVATION:
+	CALL RESERVATION
+     	RET
+
 valid_YX:                   
     LEA DX, namePrompt
     CALL DisplayString                       ;enter name
@@ -463,9 +1248,7 @@ invalid_Guest:
     LEA DX, invaildGuest
     CALL DisplayString
     JMP enter_guest   
-    
-    
-    
+        
 ENTER_AGAIN3:   
     LEA SI, inputDate
     XOR AL, AL                    
@@ -495,17 +1278,14 @@ ENTER_AGAIN3:
     JE invalid_Date_Format   
     JMP DATE_CHECKING
 
-
 invalid_Date_Format:
     LEA DX, invalidDateFormat
     CALL DisplayString
-    JMP ENTER_AGAIN3 
-    
+    JMP ENTER_AGAIN3    
     
 DATE_CHECKING:
     LEA DI, inputDate
     CALL DATE_VALIDATION     ;VALIDATION HERE
-
 
     MOV SI, datesPointer  
     LEA DI, inputDate
@@ -516,8 +1296,7 @@ DATE_CHECKING:
        INC DI
        INC SI
        LOOP COPY10  
-
-        
+       
 ENTER_TIME:      
     LEA SI, inputTime
     XOR AL, AL
@@ -559,7 +1338,6 @@ ENTER_TIME:
         SUB AH, '0'  
         ADD AL, AH
         MOV mm, AL 
-        
         JMP VALIDIATE_TIME
 
 invalid_Time_Format:  
@@ -614,7 +1392,6 @@ confirmation:
     JE valid_YN  
     CMP AL, "n"
     JE valid_YN
-    
     JMP ENTER_AGAIN4
          
 valid_YN:
@@ -622,7 +1399,6 @@ valid_YN:
     JE sucess_reservation
     CMP AL, "y"
     JE sucess_reservation   
-    
     CALL MAKE_RESERVATION
     
 invalid_min:
@@ -633,8 +1409,7 @@ invalid_min:
 ENTER_AGAIN4:
     LEA DX, invalid_YN
     CALL DisplayString
-    JMP confirmation 
-    
+    JMP confirmation    
      
 sucess_reservation:  
     CALL ClearScreen
@@ -693,18 +1468,26 @@ sucess_reservation:
     ADD namesPointer, 21 
     ADD phonesPointer, 13 
     ADD datesPointer, 11
-    ADD timesPointer, 6
+    ADD timesPointer, 6 
+    
+    MOV SI, reservedCopyIndex  
+    LEA DI, inputDate
+    MOV CX, 10
+    COPY101:                                  ;copy date to RESERVEDDATES
+       MOV BX, [DI]
+       MOV reservedDates[SI], BL  
+       INC DI
+       INC SI
+       LOOP COPY101  
+       
+    ADD reservedCount, 1
+    ADD reservedCopyIndex, 11 
     JMP RESERVATION 
-    
     RET   
-    
-MAKE_RESERVATION ENDP    
-
-  
-  
-  
+MAKE_RESERVATION ENDP     
 
 CANCEL_RESERVATION PROC
+    ADD numberAttempt[14], 1
     CALL ClearScreen   
     LEA DX, reservation_head                      
     CALL DisplayString
@@ -737,17 +1520,14 @@ valid_Choice1:
     JE check_reservation_count   
     CMP reservationYX, "y"
     JE check_reservation_count
-    
     JMP RESERVATION    
     
 check_reservation_count:
     MOV AX, reservationCount
     CMP AL, 0
-    JE NO_RESERVATION  
-    
+    JE NO_RESERVATION   
     JMP LISTING_RESERVATION  
-    
-    
+        
 NO_RESERVATION:                                                  
     LEA DX, noReservation 
     CALL DisplayString 
@@ -764,11 +1544,10 @@ ENTER_AGAIN7:
     CMP AL, "y"
     JE CALL_MAKE_RESERVATION2
     CMP AL, "N"
-    JE CALL_RESERVATION  
+    JE CALL_RESERVATION1  
     CMP AL, "n"
-    JE CALL_RESERVATION   
-    
-    
+    JE CALL_RESERVATION1 
+       
     LEA DX, invalid_YN
     CALL DisplayString
     JMP ENTER_AGAIN7  
@@ -776,10 +1555,9 @@ ENTER_AGAIN7:
 CALL_MAKE_RESERVATION2:
     CALL MAKE_RESERVATION     
     
-CALL_RESERVATION: 
+CALL_RESERVATION1: 
     CALL RESERVATION
-               
-    
+                  
 LISTING_RESERVATION:
     LEA DX, datetime_head
     CALL DisplayString  
@@ -792,39 +1570,38 @@ LISTING_RESERVATION:
     LISTING:
         LEA DX, line1
         CALL DisplayString
-	    ADD CL, 0DH               ;ADD COL
+	ADD CL, 0DH               ;ADD COL
 	    
         CALL CenterCursor
-	    ADD BX, 0001H
+	ADD BX, 0001H
         MOV DX, BX
         MOV AH, 02H
         INT 21H
 
-	    ADD CL, 08H 			;1015
+	ADD CL, 08H 			;1015
         CALL CenterCursor
-	    LEA DX, [dates + SI]
-	    CALL DisplayString
+	LEA DX, [dates + SI]
+	CALL DisplayString
 
-	    ADD CL, 1AH 			;102F
+	ADD CL, 1AH 			;102F
         CALL CenterCursor
-	    LEA DX, [times + DI]
-	    CALL DisplayString
-
+	LEA DX, [times + DI]
+	CALL DisplayString
 
         ADD CH, 02H
-	    MOV CL, 00H
-	    CALL CenterCursor
-	    INC loopCounter
-	    ADD SI, 11
+	MOV CL, 00H
+	CALL CenterCursor
+	INC loopCounter
+        ADD SI, 11
         ADD DI, 6
 	    
-	    MOV AX, reservationCount
-	    MOV DX, loopCounter
-	    CMP AX, DX                                                  
-	    JNE LISTING                                                      
+	MOV AX, reservationCount
+	MOV DX, loopCounter
+	CMP AX, DX                                                  
+	JNE LISTING                                                      
               
 SELECT_CANCEL_RESERVATION:
-    LEA DX, reservationSelection_cancel
+        LEA DX, reservationSelection_cancel
 	CALL DisplayString 
 	XOR AL, AL
 	MOV AH, 01H
@@ -849,8 +1626,7 @@ SELECT_CANCEL_RESERVATION:
 	MUL BL                              ;USER ONLY SELECT WHICH RESERVATION ONLY, (1,2,3,4,5)
 	SUB AX, 6                           ;I NEED TO TRANSFORM THE (1,2,3,4,5) TO DATE/TIME INDEX
 	MOV timeIndex, AX   	
-            
-	
+            	
 CANCEL_CONFIRMATION:	
 	LEA DX, confirmCancel
     CALL DisplayString
@@ -870,7 +1646,6 @@ CANCEL_CONFIRMATION:
     LEA DX, invalid_YN
     CALL DisplayString
     JMP CANCEL_CONFIRMATION                                                                 
-	
 
 INVALID_RESERVATION_NO:
     LEA DX, invalidCancelNo	 
@@ -882,27 +1657,21 @@ valid_YN2:
     JE SUCESS_CANCEL
     CMP AL, "y"
     JE SUCESS_CANCEL   
-    
     CALL CANCEL_RESERVATION                                                                                   
     
 SUCESS_CANCEL:              
-
-    DATE_CLEARING:
-	
+    DATE_CLEARING:	
 	MOV CX, 10
-    MOV SI, dateIndex       
-    ADD SI, 10
-    SUB SI, 1
-    REPLACE_DATE_$$$:                           ;CLEARING DATE
+        MOV SI, dateIndex       
+        ADD SI, 10
+        SUB SI, 1
 
+    REPLACE_DATE_$$$:                           ;CLEARING DATE
         MOV [dates+SI], "$"   
         DEC SI
         LOOP REPLACE_DATE_$$$  
-        
-        
-        
+                
     DATE_FORWARD_OUTER:                ;MOVING DATES FORWARD TO FILL EMPTY SPACE, EASY DO LISTING
-      
         MOV dateCounter, 0       
                  
         MOV SI, dateIndex               ;11                 ;"$$$$$$$$$$$" <- SI FOR THIS
@@ -916,12 +1685,9 @@ SUCESS_CANCEL:
         SUB DI, 1                      ;DI 31   
         
         DATE_FORWARD_INNER:
-
             MOV AL, [dates+SI]
             MOV BL, [dates+DI]   
-        
             XCHG AL, BL                   ;CHANGING EVERY CHARACTER, STARTING FROM BACK
-
             MOV [dates+SI], AL
             MOV [dates+DI], BL 
         
@@ -940,11 +1706,8 @@ SUCESS_CANCEL:
 TO_NEXT_DATE:     
     ADD dateIndex, 11 
     JMP DATE_FORWARD_OUTER
-        
-        
-TIME_CLEARING:        
-        
-        
+                
+TIME_CLEARING:              
     MOV CX, 5
     MOV SI, timeIndex       
     ADD SI, 5
@@ -994,9 +1757,7 @@ TIME_CLEARING:
 TO_NEXT_TIME:     
     ADD timeIndex, 6 
     JMP TIME_FORWARD_OUTER 
-    
-    
-    
+        
 PRINT_SUCESS_CANCEL:
     LEA DX, cancelSucessMsg      
     CALL DisplayString    
@@ -1009,20 +1770,13 @@ PRINT_SUCESS_CANCEL:
     SUB reservationCount, 1  
     SUB datesPointer, 11
     SUB timesPointer, 6
-   
     
     JMP RESERVATION   
-    RET
-    
-CANCEL_RESERVATION ENDP   
-
-       
-       
-       
-       
-       
+    RET   
+CANCEL_RESERVATION ENDP      
 
 MODIFY_RESERVATION PROC
+    ADD numberAttempt[13], 1
     CALL ClearScreen   
     LEA DX, reservation_head                      
     CALL DisplayString
@@ -1054,17 +1808,14 @@ valid_Choice2:
     CMP reservationYX, "Y"  
     JE check_reservation_count1   
     CMP reservationYX, "y"
-    JE check_reservation_count1
-    
+    JE check_reservation_count1 
     JMP RESERVATION    
     
 check_reservation_count1:
     MOV AX, reservationCount
     CMP AL, 0
-    JE NO_RESERVATION1  
-    
+    JE NO_RESERVATION1   
     JMP LISTING_RESERVATION1  
-    
     
 NO_RESERVATION1:                                                  
     LEA DX, noReservation 
@@ -1082,10 +1833,9 @@ ENTER_AGAIN9:
     CMP AL, "y"
     JE CALL_MAKE_RESERVATION3
     CMP AL, "N"
-    JE CALL_RESERVATION1  
+    JE CALL_RESERVATION2 
     CMP AL, "n"
-    JE CALL_RESERVATION1   
-    
+    JE CALL_RESERVATION2   
     
     LEA DX, invalid_YN
     CALL DisplayString
@@ -1094,10 +1844,9 @@ ENTER_AGAIN9:
 CALL_MAKE_RESERVATION3:
     CALL MAKE_RESERVATION     
     
-CALL_RESERVATION1: 
+CALL_RESERVATION2: 
     CALL RESERVATION
-               
-    
+                   
 LISTING_RESERVATION1:
     LEA DX, datetime_head
     CALL DisplayString  
@@ -1110,36 +1859,35 @@ LISTING_RESERVATION1:
     LISTING1:
         LEA DX, line1
         CALL DisplayString
-	    ADD CL, 0DH               ;ADD COL
+	ADD CL, 0DH               ;ADD COL
 	    
         CALL CenterCursor
-	    ADD BX, 0001H
+	ADD BX, 0001H
         MOV DX, BX
         MOV AH, 02H
         INT 21H
 
-	    ADD CL, 08H 			;1015
+	ADD CL, 08H 			;1015
         CALL CenterCursor
-	    LEA DX, [dates + SI]
-	    CALL DisplayString
+	LEA DX, [dates + SI]
+	CALL DisplayString
 
-	    ADD CL, 1AH 			;102F
+	ADD CL, 1AH 			;102F
         CALL CenterCursor
-	    LEA DX, [times + DI]
-	    CALL DisplayString
-
+	LEA DX, [times + DI]
+	CALL DisplayString
 
         ADD CH, 02H
-	    MOV CL, 00H
-	    CALL CenterCursor
-	    INC loopCounter
-	    ADD SI, 11
+	MOV CL, 00H
+	CALL CenterCursor
+	INC loopCounter
+	ADD SI, 11
         ADD DI, 6
 	    
-	    MOV AX, reservationCount
-	    MOV DX, loopCounter
-	    CMP AX, DX                                                  
-	    JNE LISTING1
+	MOV AX, reservationCount
+	MOV DX, loopCounter
+	CMP AX, DX                                                  
+	JNE LISTING1
               
 SELECT_MODIFY_RESERVATION:
     LEA DX, reservationSelection_modify
@@ -1175,8 +1923,7 @@ MOVE_INDEX:
 	SUB AX, 6
 	MOV timeIndex, AX 
 	
-ENTER_NEW_DATE:
-   
+ENTER_NEW_DATE:   
     LEA SI, inputNewDate
     XOR AL, AL                    
     
@@ -1205,19 +1952,15 @@ ENTER_NEW_DATE:
     JE invalid_Date_Format1   
     JMP NEW_DATE_CHECKING
 
-
 invalid_Date_Format1:
     LEA DX, invalidDateFormat
     CALL DisplayString
-    JMP ENTER_NEW_DATE 
-    
+    JMP ENTER_NEW_DATE    
     
 NEW_DATE_CHECKING:
     LEA DI, inputNewDate
     CALL DATE_VALIDATION     ;VALIDATION HERE
-    
-   
-     
+         
 ENTER_NEW_TIME:      
     LEA SI, inputNewTime
     XOR AL, AL
@@ -1259,7 +2002,6 @@ ENTER_NEW_TIME:
         SUB AH, '0'  
         ADD AL, AH
         MOV mm8, AL 
-        
         JMP VALIDIATE_TIME1
 
 invalid_Time_Format1:  
@@ -1294,11 +2036,10 @@ check_minutes1:
 invalid_min1:
     LEA DX, invalidMin
     CALL DisplayString         
-    JMP ENTER_NEW_TIME
-         
+    JMP ENTER_NEW_TIME         
 	
 MODIFY_CONFIRMATION:	
-	LEA DX, confirmModify
+    LEA DX, confirmModify
     CALL DisplayString
     XOR AL, AL   
     MOV AH, 01H
@@ -1316,18 +2057,15 @@ MODIFY_CONFIRMATION:
     LEA DX, invalid_YN
     CALL DisplayString
     JMP MODIFY_CONFIRMATION                                                                 
-	
     
 valid_YN3:
     CMP AL, "Y"
     JE SUCESS_MODIFY
     CMP AL, "y"
     JE SUCESS_MODIFY   
-    
     CALL MODIFY_RESERVATION                                                                                   
     
 SUCESS_MODIFY:  
-
     MOV SI, dateIndex  
     LEA DI, inputNewDate
     MOV CX, 10
@@ -1338,7 +2076,6 @@ SUCESS_MODIFY:
        INC SI
        LOOP COPY10_2  
        
-       
     MOV SI, timeIndex  
     LEA DI, inputNewTime
     MOV CX, 5
@@ -1348,8 +2085,7 @@ SUCESS_MODIFY:
        INC DI
        INC SI
        LOOP COPY5_2
-       
-           
+                
     LEA DX, modifySucessMsg      
     CALL DisplayString    
     LEA DX, continue
@@ -1357,29 +2093,36 @@ SUCESS_MODIFY:
     
     MOV AH, 0 
     INT 16H      
-      
-    
+         
     JMP RESERVATION   
-    RET
-    
+    RET    
 MODIFY_RESERVATION ENDP  
 
- 
- 
- 
- 
- 
- 
+parseDayMonth PROC           ;X10 + NEXT NUMBER   
+    MOV AL, [DI]            
+    SUB AL, '0'               
+    MOV BL, 10      
+    MUL BL                                                                              
+    INC DI
+    ADD AL, [DI]
+    SUB AL, '0'        
+    RET   
+parseDayMonth ENDP
 
-DATE_VALIDATION PROC         
-         
+removePreviousChar PROC       
+    CALL CenterCursor
+    LEA DX, eraser       ;clear previous user input  
+    CALL DisplayString 
+    CALL CenterCursor    ;back to original starting
+    RET
+removePreviousChar ENDP 
+
+DATE_VALIDATION PROC                 
     CALL parseDayMonth         ;PARSE DAY
     MOV day, AL  
-    
     ADD DI, 2  
     CALL parseDayMonth         ;PARSE MONTH
     MOV month, AL 
-     
     ADD DI, 2                  ;PARSE YEAR
     
     MOV AL, [DI]            
@@ -1398,15 +2141,12 @@ DATE_VALIDATION PROC
     ADD AL, [DI]       ;2222
     SUB AL, '0'         
     MOV year, AX
-    
                       
     MOV AH,2AH           ; To get System Date
     INT 21H
     MOV sys_day, DL      ; Day is in DL    
     MOV sys_month,DH     ; Month is in DH  
-    MOV sys_year, CX     ; Year is in CX
-    
-    
+    MOV sys_year, CX     ; Year is in CX    
                   
     CMP year, CX 
     JL invalid_year_less  
@@ -1424,7 +2164,6 @@ invalid_year_more:
     CALL DisplayString         
     JMP ENTER_AGAIN3
 
-    
 MONTH_VALIDATION:
     CMP month, 1
     JL invalid_month            ;valid month
@@ -1459,8 +2198,7 @@ check_leap_year:
     MOV AX, year
     MOV BX, 100
     MOV DX, 0000H 
-    DIV BX                ;2024/100, 20INAX 24INDX
-    
+    DIV BX                ;2024/100, 20INAX 24INDX   
     
     MOV AL, DL
     MOV BL, 4             ;24/4 IF REM IS 0 = LEAP
@@ -1474,7 +2212,6 @@ check_leap_year:
     JLE valid_day  
     JMP invalid_day29
    
-
 not_leap_year:  
     CMP day, 1
     JL invalid_day1
@@ -1512,38 +2249,73 @@ invalid_day29:
 invalid_day28:
     LEA DX, invalidDay28
     CALL DisplayString         
-    JMP ENTER_AGAIN3 
-                
+    JMP ENTER_AGAIN3        
 
+valid_day: 
 
-valid_day:   
-    RET
-    
-DATE_VALIDATION ENDP
+    MOV DI, reservedDatesPointer            ;INPUT 1 GET 10
+    MOV AL, reservedCount                   ;INPUT 2 GET 21
+    MOV BL, 10                              ;INPUT 3 GET 32
+    MUL BL
+    ADD AL, reservedCount                   ;10N + (N-1)
+    SUB AL, 1
+    MOV endingIndex, AX                     ;if reservedcount = 2, end at 21, (22 is new date already)
 
+CHECK_OUTER:                
+      
+        MOV charCounter, 0 
+        MOV CORRECT, 10               
+        MOV SI, 0                                   
+        MOV CX, 10 
 
-    
-parseDayMonth:           ;X10 + NEXT NUMBER   
-    MOV AL, [DI]            
-    SUB AL, '0'               
-    MOV BL, 10      
-    MUL BL                                                                              
-    INC DI
-    ADD AL, [DI]
-    SUB AL, '0'    
+        CHECK_INNER:
+            MOV AL, [reservedDates+DI] 
+            SUB AL, "0"
+            MOV BL, [inputDate+SI]
+            SUB BL, "0"   
+        
+            CMP AL, BL                   
+            JE PLUS_COUNTER
+            JMP SUB_COUNTER
+            
+            PLUS_COUNTER:
+                INC CORRECT 
+                JMP OK
+            
+            SUB_COUNTER:
+                DEC CORRECT
+            
+            OK:
+            INC SI 
+            INC DI
+            INC charCounter
+            LOOP CHECK_INNER    
+        
+        MOV AL, CORRECT
+        CMP CORRECT, 20                       ;correct = 20 means all chracters of date are same
+        JE  FOUND_RESERVED                             ;less than 20 means not all same
      
+           
+        CMP DI, endingIndex                   
+        JE NOT_FOUND_RESERVED        
+        
+        CMP charCounter, 10                    ;date length is 10, after 10, move to next date
+        JE GOTO_NEXT_DATE        
+        JMP NOT_FOUND_RESERVED              
+        
+GOTO_NEXT_DATE:     
+    ADD DI, 1                                  ;add 1 because next string start at position 11
+    JMP CHECK_OUTER
+                  
+                  
+FOUND_RESERVED:
+    LEA DX, invalidReservedDate
+    CALL DisplayString         
+    JMP ENTER_AGAIN3
+                                                                                                         
+NOT_FOUND_RESERVED:
+
     RET   
-    
-removePreviousChar:       
-    CALL CenterCursor
-    LEA DX, eraser       ;clear previous user input  
-    CALL DisplayString 
-    CALL CenterCursor    ;back to original starting
-    RET
-    
-ENDING:   
-MOV AH, 4CH
-INT 21H
+DATE_VALIDATION ENDP 
 
 END MAIN
-                  
