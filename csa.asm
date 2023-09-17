@@ -195,6 +195,62 @@ cartContinue db 0AH
              db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
              db "Enter Your Choice: $"
 
+payment_msg   db 0AH
+              db "++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+              db "|   ____     _    _  _   _   _  ___   _  _   _____   |", 0AH
+              db "|  )  _)\   )_\  ) () ( ) \_/ () __( ) \/ ( )__ __(  |", 0AH
+              db "|  | '__/  /( )\ '.  /  |  _  || _)  |  \ |   | |    |", 0AH
+              db "|  )_(    )_/ \_( /_(   )_( )_()___( )_()_(   )_(    |", 0AH
+              db "|                                                    |", 0AH
+              db "++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+              db "|                          |       Price (RM)        |", 0AH
+              db "++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+cartSubtotal2 db "|        Subtotal          |          $"
+paymentDisc   db "|        Discount          |          $"
+paymentSST    db "|        SST     (5%)      |          $"
+paymentSC     db "|        Service (6%)      |          $"
+paymentLine   db "++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+paymentTotal  db "|        Total Amount      |          $"
+paymentSpace  db "        |", 0AH, "$"
+paymentSpace2 db "         |", 0AH, "$"
+pay_msg       db "Press any key to pay Total Amount...$"
+
+cafe_msg     db 0AH
+             db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+	     db "|   _   _  ___   ____   _  _                                   |", 0AH
+	     db "|  \ ( ) /) __( /  _ \ ) () (                                  |", 0AH
+             db "|   )\_/( | _)  )  ' / '.  /                                   |", 0AH
+ 	     db "|    \_/  )___( |_()_\  /_(                                    |", 0AH
+             db "|   ___   ___   _       ___   ___   ___   ____   _  _    ___   |", 0AH
+             db "|  \   \ ) __( ) |     )_ _( / _(  )_ _( / __ \ ) () (  (  _(  |", 0AH
+             db "|  | ) ( | _)  | (__   _| |_ ))_   _| |_ ))__(( | \/ |  _) \   |", 0AH
+             db "|  /___/ )___( )____( )_____(\__( )_____(\____/ )____( )____)  |", 0AH
+             db "|   ___    _    ___   ___                                      |", 0AH
+             db "|  / _(   )_\  ) __( ) __(                                     |", 0AH
+             db "|  ))_   /( )\ | _)  | _)                                      |", 0AH
+             db "|  \__( )_/ \_()_(   )___(                                     |", 0AH               
+             db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+             db "| Address:                                     Phone No. :     |", 0AH
+             db "|    Taman Setapak Indah Jaya                     09-222-1234  |", 0AH
+             db "|    53100 Kuala Lumpur                                        |", 0AH
+             db "|    Federal Territory of Kuala Lumpur                         |", 0AH
+             db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+             db "Press any key to continue...$"
+
+payAmount     db "|        Pay Amount        |          $"
+changeAmount  db "|        Change            |          $"
+
+receipt_msg   db 0AH
+              db "++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH 
+              db "|    ____   ___   ___  ___    ___   ____   _____     |", 0AH
+              db "|   /  _ \ ) __( / _( ) __(  )_ _( )  _)\ )__ __(    |", 0AH
+              db "|   )  ' / | _)  ))_  | _)   _| |_ | '__/   | |      |", 0AH
+              db "|   |_()_\ )___( \__( )___( )_____()_(      )_(      |", 0AH
+              db "|                                                    |", 0AH
+              db "++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH
+              db "|                          |       Price (RM)        |", 0AH
+              db "++++++++++++++++++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+
 invalid_main db 0AH, "[Error] Please Enter 1, 2, 3 or 4 only!"
              db 0AH, "Press any key to continue...$"
 invalid_menu db 0AH, "[Error] Please Enter A to M and X only!"
@@ -211,6 +267,13 @@ removeErrorMsg db 0AH, "Item is not in the Cart!", 0AH, "$"
 removeQuantityMsg db 0AH, "Quantity Entered is more than in the Cart!", 0AH, "$"
 max_quantity db 0AH, "[Error] Reached Max Quantity (20)!"
              db 0AH, "Press any key to continue...$"
+promo_msg     db "Enter Promo Code (X = No Promo Code): $"
+invalid_promo db 0AH, "[Error] Please Enter Valid Promo Code or X only!", 0AH, "$"
+continue_msg  db 0AH, "Press any key to continue...$"
+pay_error db 0AH, "[Error] Incorrect Format!", 0AH, "$"
+pay_error2 db 0AH, "[Error] Please Enter Greater or Equal to the Total Amount only!", 0AH, "$"
+paysuccess_msg db 0AH, "Payment Successful!"
+               db 0AH, "Press any key to continue...$"
 
 menuType db ?
 menuChoice db "ABCDEFGHIJKLM"
@@ -224,8 +287,9 @@ totalItem dw 0
 subtotal dw 0
 rem dw 0
 quo dw 0
+temp dw ?
 
-numberAttempt db 15 dup(0)
+numberAttempt db 16 dup(0)
 attemptMsg db 0AH
            db "+++++++++++++++++++++++++++++++++++++++", 0AH
            db "| Number of Attempt                   |", 0AH
@@ -239,13 +303,14 @@ beverageAttempt db "  Beverage Menu: $"
 dessertAttempt db " |", 0AH, "| Dessert Menu: $"
 cartAttempt db "  Cart         : $"
 removeAttempt db " |", 0AH, "| Remove Item : $"
-paymentAttempt db "  Payment      : $"
+paymentAttempt db "  Promo Code   : $"
 reservationAttempt db " |", 0AH, "| Reservation : $"
 exitAttempt db "  Exit         : $"
 makeReservationAttempt db " |", 0AH, "| Make Reservation   : $"
 modifyReservationAttempt db "             |", 0AH, "| Modify Reservation : $"
 cancelReservationAttempt db "             |", 0AH, "| Cancel Reservation : $"
-attemptEnd db "             |", 0AH, "+++++++++++++++++++++++++++++++++++++++", 0AH, "$"
+paymentAttempt2 db "             |", 0AH, "| Payment     : $"
+attemptEnd db "                    |", 0AH, "+++++++++++++++++++++++++++++++++++++++", 0AH, "Thank You!$"
 
 accountID db "A1001$"
 password db "ABC12345$"
@@ -264,6 +329,40 @@ userInput2 label byte
     act2 db ?
     inputPassword db 10 dup("$")
 
+userInput3 label byte
+    max9 db 11
+    act9 db ?
+    promocode db 12 dup("$")
+
+userInput4 label byte
+    max db 7
+    act db ?
+    input4 db 8 dup("$")
+
+noPromo db "X$"
+FIRST20_PROMO db "FIRST20$"
+DELICIOUS5_PROMO db "DELICIOUS5$"
+ALLDAY_PROMO db "ALLDAY$"
+
+FIRST20_RATE dw 20
+DELICIOUS5_RATE dw 5
+ALLDAY_RATE dw 8
+SST_RATE            dw 5
+SC_RATE             dw 6
+
+discount_rate dw 0
+discountQuo dw ?
+discountRem dw ?
+subtotalAfterDiscQuo dw ?
+subtotalAfterDiscRem dw ?
+SSTQuo                 dw ?
+SSTRem dw ?
+SCQuo                  dw ?
+SCRem dw ?
+TOTAL_AMOUNT dw ?
+amountPay dw ?
+paid                dw ?
+change              dw ?
 
 enter_msg db 0AH, "Enter Your Choice: $"
 reservationSelection_cancel db 0AH, "Select which reservation to cancel: NO $"  
@@ -449,11 +548,122 @@ enterPass:
 
 JMP MAIN_MENU
 
+checkNoPromo:
+	LEA SI, noPromo
+	LEA DI, promoCode
+	MOV CX, 1
+	JMP checkNoPromoLoop
+
+checkNoPromoLoop:
+	MOV AL, [SI]
+	MOV BL, [DI]
+	CMP AL, BL
+	JNE checkFirst
+	INC SI
+	INC DI
+Loop checkNoPromoLoop
+JMP PROMO_DONE
+
+checkFirst:
+	LEA SI, FIRST20_PROMO
+	LEA DI, promoCode
+	MOV CX, 7
+	JMP checkFirstLoop
+
+checkFirstLoop:
+	MOV AL, [SI]
+	MOV BL, [DI]
+	CMP AL, BL
+	JNE checkDelicious
+	INC SI
+	INC DI
+Loop checkFirstLoop
+MOV AX, FIRST20_RATE
+MOV discount_rate, AX
+JMP PROMO_DONE
+
+checkDelicious:
+	LEA SI, DELICIOUS5_PROMO
+	LEA DI, promoCode
+	MOV CX, 10
+	JMP checkDeliciousLoop
+
+checkDeliciousLoop:
+	MOV AL, [SI]
+	MOV BL, [DI]
+	CMP AL, BL
+	JNE checkAllday
+	INC SI
+	INC DI
+Loop checkDeliciousLoop
+MOV AX, DELICIOUS5_RATE
+MOV discount_rate, AX
+JMP PROMO_DONE
+
+checkAllday:
+	LEA SI, ALLDAY_PROMO
+	LEA DI, promoCode
+	MOV CX, 6
+	JMP checkAlldayLoop
+
+checkAlldayLoop:
+	MOV AL, [SI]
+	MOV BL, [DI]
+	CMP AL, BL
+	JNE PROMO_ERROR
+	INC SI
+	INC DI
+Loop checkAlldayLoop
+MOV AX, ALLDAY_RATE
+MOV discount_rate, AX
+JMP PROMO_DONE
+
+PROMO_ERROR:
+	CALL promoError
+	JMP PAYMENT
+
+PROMO_DONE:
+	CALL callPromoDone
+	CALL callCalculateSubtotal
+	CALL callCalculateSST
+	CALL callCalculateSC
+	CALL callCalculateTotal
+	JMP PAY
+
+removeItem:
+	ADD numberAttempt[8], 1
+	LEA DX, itemRemove
+	CALL DisplayString
+    	CALL readCharacter
+	MOV userMenuChoice, AL
+
+    	CMP userMenuChoice, 'X'
+	JE CART
+
+	CALL setLoop
+	MOV DI, 0
+	CALL removeCart
+
+PAYMENT:
+	ADD numberAttempt[9], 1
+	;CALL callPayment
+    CALL ClearScreen
+    LEA DX, promo_msg
+    CALL DisplayString
+	LEA DX, userInput3
+	CALL readString
+	JMP checkNoPromo
+
 CART:
 	ADD numberAttempt[7], 1
 	CALL calcCart
 	CALL orderPrint
 	JMP cartChoice
+
+;checkPayAmount:
+	;MOV AX, [SI]
+	;MOV BX, [DI]
+	;CMP AX, BX
 
 cartChoice:
 	CALL ClearScreen
@@ -474,23 +684,67 @@ cartChoice:
 	CALL userChoiceError
 	LOOP cartChoice
 
-PAYMENT:
-	ADD numberAttempt[9], 1
-	JMP MAIN_MENU               ;to be changed
+PAY:
+	CALL paymentPrint
+pay1:
+	ADD numberAttempt[15], 1
+    LEA DX, pay_msg
+    CALL DisplayString
+	CALL PressContinue
+	JMP paySuccess
+	
+	;LEA DX, userInput4         ;PAYMENT SHOULD BE DONE BY LIPWAI, BUT HE CANT DO, MINGSHEN COMPLETED THIS PAYMENT IN 10H
+	;MOV AH, 0AH
+	;INT 21H
 
-removeItem:
-	ADD numberAttempt[8], 1
-	LEA DX, itemRemove
-	CALL DisplayString
-    	CALL readCharacter
-	MOV userMenuChoice, AL
+	;CMP input4[3], '.'
+	;JE copyPayAmount
+	;JNE payError
 
-    	CMP userMenuChoice, 'X'
-	JE CART
+;copyPayAmount:           ;;;;;;;;;;;;;;;;;;HELPPPPPPPPPP
+	;LEA DI, input4
+	;MOV AL, [DI]
+	;SUB AL, '0'
+	;MOV BL, 10
+	;MUL BL
+	;INC DI
+	;ADD AL, [DI]
+	;SUB AL, '0'
+	;MUL BL
+	;INC DI
+	;ADD AL, [DI]
+	;SUB AL, '0'
+	;MUL BL
+	;ADD DI, 2
+	;ADD AL, [DI]
+	;SUB AL, '0'
+	;INC DI
+	;ADD AL, [DI]
+	;SUB AL, '0'
+	;MOV amountPay, AX
+	;LEA SI, amountPay
+	;LEA DI, input4
+	;MOV CX, 6
 
-	CALL setLoop
-	MOV DI, 0
-	CALL removeCart
+;copyLoop:
+	;CMP DI, '.'
+	;JE addInputArr2
+
+	;MOV AL, [DI]
+	;MOV AH, 0
+	;MOV [SI], AX
+	;ADD SI, 2
+
+;addInputArr2:
+	;INC DI
+	;LOOP copyLoop
+
+;payLoop:
+	;CALL callPayLoop
+	;LEA SI, amountPay
+	;LEA DI, TOTAL_AMOUNT
+	;MOV CX, 6
+	;JMP checkAmountPay       ;;;;;;;;;;;;;;;;;;;;HELPPPP UNTIL HERE
 
 MAIN_MENU:
     ADD numberAttempt[2], 1
@@ -512,16 +766,9 @@ MAIN_MENU:
     CALL userChoiceError
     LOOP MAIN_MENU
 
-CALL_RESERVATION100:
-	CALL RESERVATION
-	RET
 MENU:
 menuEnter:
 	CALL callMenuEnter
-	JMP menuJump
-
-EXIT:
-	CALL callExit
 
 menuJump:
 	CMP menuType, 1
@@ -536,6 +783,59 @@ menuJump:
 	CALL userChoiceError
 	LOOP menuEnter
 
+;payError:
+	;LEA DX, pay_error
+	;CALL DisplayString
+	;JMP pay1
+
+Display_Cafe:
+	CALL callDisplayCafe
+	JMP MAIN_MENU
+
+;checkAmountPay: ;;;;;;;;;;;;;;;;;;;;;;HELPPPPPPPPPPP
+	;CMP DI, '.'
+	;JE addInputArr
+
+	;MOV AX, [SI]
+	;MOV BX, [DI]
+	;CMP BX, AX
+	;CMP AX, BX
+	;JE paySuccess
+	;JB payError2
+	;JA payChange
+
+	;ADD SI, 2
+	;ADD DI, 2
+
+;LOOP checkAmountPay;;;;;;;;;;;;;;;;;;;;;;;HELPPPPP UNTIL HERE
+
+;payError2:
+	;LEA DX, pay_error2
+	;CALL DisplayString
+	;JMP pay1
+
+;payChange:
+	;MOV AX, amountPay
+	;SUB AX, TOTAL_AMOUNT
+	;MOV change, AX
+	;JMP paySuccess
+
+paySuccess:
+	LEA DX, paysuccess_msg
+	CALL DisplayString
+	CALL PressContinue
+	;RET
+;callPayLoop ENDP
+
+	JMP Display_Cafe
+
+CALL_RESERVATION100:
+	CALL RESERVATION
+	RET
+
+EXIT:
+	CALL callExit
+
 menuContinue:
     CALL readCharacter
 	MOV userMenuChoice, AL
@@ -546,6 +846,30 @@ menuContinue:
 	CALL setLoop
 	MOV DI, 0
 	JMP findItem
+
+FOOD:
+	CALL callFood
+	JMP menuContinue
+
+BEVERAGE:
+	CALL callBeverage
+	JMP menuContinue
+
+DESSERT:
+	CALL callDessert
+	JMP menuContinue
+
+maxItem:
+	CALL callMaxItem
+	JMP menuJump
+
+addToCart:
+	CALL callAddToCart
+	JMP menuJump
+
+noAddToCart:
+	CALL callNoAddToCart
+	JMP menuJump
 
 findItem:
 	MOV BL, menuChoice[SI]
@@ -583,30 +907,6 @@ confirmCart:
     CALL DisplayString
 	CALL PressContinue
     LOOP confirmCart
-
-FOOD:
-	CALL callFood
-	JMP menuContinue
-
-BEVERAGE:
-	CALL callBeverage
-	JMP menuContinue
-
-DESSERT:
-	CALL callDessert
-	JMP menuContinue
-
-maxItem:
-	CALL callMaxItem
-	JMP menuJump
-
-addToCart:
-	CALL callAddToCart
-	JMP menuJump
-
-noAddToCart:
-	CALL callNoAddToCart
-	JMP menuJump
 
 MAIN ENDP
 
@@ -656,6 +956,12 @@ readCharacter PROC
 	INT 21H
 	RET
 readCharacter ENDP
+
+readString PROC
+	MOV AH, 0AH
+	INT 21H
+	RET
+readString ENDP
 
 setLoop PROC
     MOV SI, 0
@@ -952,6 +1258,310 @@ printEnd:
 	RET
 orderPrint ENDP
 
+callPayment PROC
+    CALL ClearScreen
+    LEA DX, promo_msg
+    CALL DisplayString
+	LEA DX, userInput3
+	CALL readString
+	RET
+callPayment ENDP
+
+paymentPrint PROC
+	;CALL ClearScreen
+	MOV SI, 0
+	LEA DX, payment_msg
+	CALL DisplayString
+
+	LEA DX, cartSubtotal2
+	CALL subtotalPrint
+	LEA DX, paymentDisc
+	CALL discPrint 
+	LEA DX, paymentSST
+	CALL sstPrint
+	LEA DX, paymentSC
+	CALL scPrint 
+	LEA DX, paymentLine
+	CALL DisplayString
+	LEA DX, paymentTotal
+	CALL paymentTotalPrint 
+        LEA DX, paymentLine
+	CALL DisplayString
+
+	;CALL PressContinue
+	RET
+paymentPrint ENDP
+
+callPromoDone PROC
+	MOV AX, discount_rate
+	MOV BX, subtotal
+	MUL BX
+	MOV BX, 100
+	DIV BX
+	MOV discountQuo, AX
+	MOV discountRem, DX
+	RET
+callPromoDone ENDP
+
+callCalculateSubtotal PROC
+CALCULATE_SUBTOTAL_AFTER_DISC:
+	MOV AX, subtotal
+	SUB AX, discountQuo
+	MOV BX, 100
+	MUL BX
+	SUB AX, discountRem
+	MOV BX, 100
+	DIV BX
+	MOV subtotalAfterDiscQuo, AX
+	MOV subtotalAfterDiscRem, DX
+	RET
+callCalculateSubtotal ENDP
+
+callCalculateSST PROC
+CALCULATE_SST:
+	MOV AX, SST_RATE
+	MOV BX, subtotalAfterDiscQuo
+	MUL BX
+	MOV BX, 100
+	DIV BX
+	MOV SSTQuo, AX
+	MOV SSTRem, DX
+	RET
+callCalculateSST ENDP
+
+callCalculateSC PROC
+CALCULATE_SC:
+	MOV AX, SC_RATE
+	MOV BX, subtotalAfterDiscQuo
+	MUL BX
+	MOV BX, 100
+	DIV BX
+	MOV SCQuo, AX
+	MOV SCRem, DX
+	RET
+callCalculateSC ENDP
+
+callCalculateTotal PROC
+CALCULATE_TOTAL_AMOUNT:
+	MOV AX, subtotalAfterDiscQuo
+	ADD AX, SSTQuo
+	ADD AX, SCQuo
+	MOV TOTAL_AMOUNT, AX
+	RET
+callCalculateTotal ENDP
+
+promoError PROC
+    MOV CX, 0000H
+    CALL CenterCursor
+	LEA DX, invalid_promo
+	CALL DisplayString
+    MOV CX, 0100H
+    CALL CenterCursor
+	LEA DX, continue_msg
+	CALL DisplayString
+	CALL PressContinue
+	RET
+promoError ENDP
+
+subtotalPrint PROC
+	CALL DisplayString        
+	MOV AX, subtotal     
+	CALL printPrice
+	LEA DX, paymentSpace2
+	CALL DisplayString
+	RET
+subtotalPrint ENDP
+
+discPrint PROC
+	CALL DisplayString        
+	MOV AX, discountQuo     
+	CALL printPrice
+	MOV AX, discountRem
+	CALL PRINT2
+	LEA DX, paymentSpace
+	CALL DisplayString
+	RET
+discPrint ENDP
+
+sstPrint PROC
+	CALL DisplayString        
+	MOV AX, SSTQuo     
+	CALL printPrice
+	MOV AX, SSTRem
+	CALL PRINT2
+	LEA DX, paymentSpace
+	CALL DisplayString
+	RET
+sstPrint ENDP
+
+scPrint PROC
+	CALL DisplayString
+	MOV AX, SCQuo     
+	CALL printPrice
+	MOV AX, SCRem
+	CALL PRINT2
+	LEA DX, paymentSpace
+	CALL DisplayString
+	RET
+scPrint ENDP
+
+paymentTotalPrint PROC
+	CALL DisplayString        
+	MOV AX, TOTAL_AMOUNT     
+	CALL printPrice
+	LEA DX, paymentSpace2
+	CALL DisplayString
+	RET
+paymentTotalPrint ENDP
+
+paidPrint PROC
+	CALL DisplayString        
+	MOV AX, TOTAL_AMOUNT
+	CALL printPrice
+	LEA DX, paymentSpace2
+	CALL DisplayString
+	RET
+paidPrint ENDP
+
+orderPrint2 PROC
+	CALL ClearScreen
+	MOV SI, 0
+	LEA DX, cart_line
+	CALL DisplayString
+
+	CMP cartQuantity[SI], 0
+	JE cmpB1
+	JNE printA1
+printA1:
+	LEA DX, cartItemA
+	CALL printOrder
+	MOV cartNone, 1
+cmpB1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpC1
+	JNE printB1
+printB1:
+	LEA DX, cartItemB
+	CALL printOrder
+	MOV cartNone, 1
+cmpC1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpD1
+	JNE printC1
+printC1:
+	LEA DX, cartItemC
+	CALL printOrder
+	MOV cartNone, 1
+cmpD1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpE1
+	JNE printD1
+printD1:
+	LEA DX, cartItemD
+	CALL printOrder
+	MOV cartNone, 1
+cmpE1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpF1
+	JNE printE1
+printE1:
+	LEA DX, cartItemE
+	CALL printOrder
+	MOV cartNone, 1
+cmpF1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpG1
+	JNE printF1
+printF1:
+	LEA DX, cartItemF
+	CALL printOrder
+	MOV cartNone, 1
+cmpG1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpH1
+	JNE printG1
+printG1:
+	LEA DX, cartItemG
+	CALL printOrder
+	MOV cartNone, 1
+cmpH1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpI1
+	JNE printH1
+printH1:
+	LEA DX, cartItemH
+	CALL printOrder
+	MOV cartNone, 1
+cmpI1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpJ1
+	JNE printI1
+printI1:
+	LEA DX, cartItemI
+	CALL printOrder
+	MOV cartNone, 1
+cmpJ1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpK1
+	JNE printJ1
+printJ1:
+	LEA DX, cartItemJ
+	CALL printOrder
+	MOV cartNone, 1
+cmpK1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE cmpL1
+	JNE printK1
+printK1:
+	LEA DX, cartItemK
+	CALL printOrder
+	MOV cartNone, 1
+cmpL1:
+	ADD SI, 2
+	CMP cartQuantity[SI], 0
+	JE noneItem1
+	JNE printL1
+printL1:
+	LEA DX, cartItemL
+	CALL printOrder
+	MOV cartNone, 1
+
+noneItem1:
+	CMP cartNone, 1
+	JE printLine1
+	JNE printEnd1
+
+printLine1:
+	LEA DX, cart_line
+	CALL DisplayString
+
+printEnd1:
+	;LEA DX, cartSubtotal
+	;CALL DisplayString
+	;MOV AX, totalItem
+	;CALL PRINT
+	;LEA DX, cartSpace1
+	;CALL DisplayString
+	;MOV AX, subtotal
+	;CALL printPrice
+	;LEA DX, cartSpace2
+	;CALL DisplayString
+	;LEA DX, cartEnd
+	;CALL DisplayString
+	;CALL PressContinue
+	RET
+orderPrint2 ENDP
+
 callExit PROC
 	ADD numberAttempt[11], 1
 	CALL printExit
@@ -1012,6 +1622,9 @@ printExit PROC
 	LEA DX, cancelReservationAttempt
 	CALL DisplayString
 	CALL exitLoop
+	LEA DX, paymentAttempt2
+	CALL DisplayString
+	CALL exitLoop
 	LEA DX, attemptEnd
 	CALL DisplayString
 	RET
@@ -1033,6 +1646,76 @@ printOrder PROC
 	RET
 printOrder ENDP
 
+receiptPrint PROC
+	CALL ClearScreen
+	MOV SI, 0
+	LEA DX, receipt_msg
+	CALL DisplayString
+
+	LEA DX, cartSubtotal2
+	CALL subtotalPrint
+	LEA DX, paymentDisc
+	CALL discPrint 
+	LEA DX, paymentSST
+	CALL sstPrint
+	LEA DX, paymentSC
+	CALL scPrint 
+	LEA DX, paymentLine
+	CALL DisplayString
+	LEA DX, paymentTotal
+	CALL paymentTotalPrint 
+        LEA DX, payAmount
+	CALL paidPrint
+        LEA DX, paymentLine
+	CALL DisplayString
+        ;LEA DX, changeAmount
+	;CALL changePrint
+        ;LEA DX, paymentLine
+	;CALL DisplayString
+	LEA DX, continue_msg
+	CALL DisplayString
+	CALL PressContinue
+	RET
+receiptPrint ENDP
+
+changePrint PROC
+	CALL DisplayString        
+	MOV AX, change
+	CALL printPrice
+	LEA DX, paymentSpace2
+	CALL DisplayString
+	RET
+changePrint ENDP
+
+callDisplayCafe PROC
+	    CALL ClearScreen
+    LEA DX, cafe_msg
+    CALL DisplayString
+	CALL PressContinue
+	CALL orderPrint2
+
+receipt:
+	CALL receiptPrint
+	CALL clearCart
+	RET
+callDisplayCafe ENDP
+
+clearCart PROC
+	MOV cartNone, 0
+    MOV totalItem, 0
+    MOV SI, 0
+    MOV CX, 12
+    XOR AX, AX
+    XOR BX, BX
+    CLEAR_LOOP:
+        MOV cartQuantity[SI], AX
+        MOV itemTotalPrice[SI], AX
+        ADD SI, 2
+        LOOP CLEAR_LOOP
+
+    RET
+clearCart ENDP
+
 PRINT PROC           
     MOV DX, 0000H                  
     MOV BX, 10
@@ -1052,6 +1735,21 @@ PRINT PROC
     INT 21H  
     RET        
 PRINT ENDP
+
+PRINT2 PROC
+	MOV DX, 0000H                  
+    MOV BX, 10
+    
+    DIV BX
+    ;MOV rem, DX
+    MOV quo, AX 
+    
+    MOV AH, 02H                   
+    MOV DX, quo   
+    ADD DX, '0'
+    INT 21H
+	RET  
+PRINT2 ENDP
 
 printPrice PROC
     MOV DX, 0000H 
@@ -1285,8 +1983,205 @@ invalid_Date_Format:
     
 DATE_CHECKING:
     LEA DI, inputDate
-    CALL DATE_VALIDATION     ;VALIDATION HERE
+   
+    CALL parseDayMonth         ;PARSE DAY
+    MOV day, AL  
+    ADD DI, 2  
+    CALL parseDayMonth         ;PARSE MONTH
+    MOV month, AL 
+    ADD DI, 2                  ;PARSE YEAR
+    
+    MOV AL, [DI]            
+    SUB AL, '0'     ;2         
+    MOV BL, 10     ;20
+    MUL BL     
+    INC DI
+    ADD AL, [DI]  ;22
+    SUB AL, '0'   
+    MUL BL       ;220
+    INC DI
+    ADD AL, [DI]  ;222
+    SUB AL, '0'
+    MUL BL          ;2220
+    INC DI
+    ADD AL, [DI]       ;2222
+    SUB AL, '0'         
+    MOV year, AX
+                      
+    MOV AH,2AH           ; To get System Date
+    INT 21H
+    MOV sys_day, DL      ; Day is in DL    
+    MOV sys_month,DH     ; Month is in DH  
+    MOV sys_year, CX     ; Year is in CX    
+                  
+    CMP year, CX 
+    JL invalid_year_less  
+    CMP year, 2025              ;valid year
+    JG invalid_year_more        
+    JMP MONTH_VALIDATION
 
+invalid_year_less:   
+    LEA DX, invalidYearL
+    CALL DisplayString  
+    JMP ENTER_AGAIN3
+
+invalid_year_more:
+    LEA DX, invalidYearG
+    CALL DisplayString         
+    JMP ENTER_AGAIN3
+
+MONTH_VALIDATION:
+    CMP month, 1
+    JL invalid_month            ;valid month
+    CMP month, 12
+    JG invalid_month  
+    JMP DAY_VALIDATION
+
+invalid_month:                                                      
+    LEA DX, invalidMonth
+    CALL DisplayString         
+    JMP ENTER_AGAIN3  
+
+DAY_VALIDATION:    
+    CMP month, 2 
+    JE check_leap_year          ;valid day, check which month first
+    CMP month, 4 
+    JE check_day30
+    CMP month, 6 
+    JE check_day30
+    CMP month, 9 
+    JE check_day30
+    CMP month, 11 
+    JE check_day30
+
+    CMP day, 1
+    JL invalid_day1
+    CMP day, 31                ;all months with 31days
+    JG invalid_day31    
+    JMP valid_day  
+                                      
+check_leap_year:
+    MOV AX, year
+    MOV BX, 100
+    MOV DX, 0000H 
+    DIV BX                ;2024/100, 20INAX 24INDX   
+    
+    MOV AL, DL
+    MOV BL, 4             ;24/4 IF REM IS 0 = LEAP
+    DIV BL
+    CMP AH, 0
+    JNZ not_leap_year
+       
+    CMP day, 1
+    JL invalid_day1   
+    CMP day, 29
+    JLE valid_day  
+    JMP invalid_day29
+   
+not_leap_year:  
+    CMP day, 1
+    JL invalid_day1
+    CMP day, 28
+    JLE valid_day
+    JMP invalid_day28
+    
+check_day30:  
+    CMP day, 1                        ;TODO: TEST ZERO
+    JL  invalid_day1
+    CMP day, 30
+    JLE valid_day  
+    JMP invalid_day30
+
+invalid_day1:
+    LEA DX, invalidDay1
+    CALL DisplayString         
+    JMP ENTER_AGAIN3 
+
+invalid_day30:
+    LEA DX, invalidDay30
+    CALL DisplayString         
+    JMP ENTER_AGAIN3                
+    
+invalid_day31:
+    LEA DX, invalidDay31
+    CALL DisplayString         
+    JMP ENTER_AGAIN3 
+    
+invalid_day29: 
+    LEA DX, invalidDay29
+    CALL DisplayString         
+    JMP ENTER_AGAIN3 
+
+invalid_day28:
+    LEA DX, invalidDay28
+    CALL DisplayString         
+    JMP ENTER_AGAIN3        
+
+valid_day:
+              
+    MOV DI, reservedDatesPointer            ;INPUT 1 GET 10
+    MOV AL, reservedCount                   ;INPUT 2 GET 21
+    MOV BL, 10                              ;INPUT 3 GET 32
+    MUL BL
+    ADD AL, reservedCount                   ;10N + (N-1)
+    SUB AL, 1
+    MOV endingIndex, AX                     ;if reservedcount = 2, end at 21, (22 is new date already)
+
+CHECK_OUTER:                
+      
+        MOV charCounter, 0 
+        MOV CORRECT, 10               
+        MOV SI, 0                                   
+        MOV CX, 10 
+
+        CHECK_INNER:
+            MOV AL, [reservedDates+DI] 
+            SUB AL, "0"
+            MOV BL, [inputDate+SI]
+            SUB BL, "0"   
+        
+            CMP AL, BL                   
+            JE PLUS_COUNTER
+            JMP SUB_COUNTER
+            
+            PLUS_COUNTER:
+                INC CORRECT 
+                JMP OK
+            
+            SUB_COUNTER:
+                DEC CORRECT
+            
+            OK:
+            INC SI 
+            INC DI
+            INC charCounter
+            LOOP CHECK_INNER    
+        
+        MOV AL, CORRECT
+        CMP CORRECT, 20                       ;correct = 20 means all chracters of date are same
+        JE  FOUND_RESERVED                             ;less than 20 means not all same
+     
+           
+        CMP DI, endingIndex                   
+        JE NOT_FOUND_RESERVED        
+        
+        CMP charCounter, 10                    ;date length is 10, after 10, move to next date
+        JE GOTO_NEXT_DATE        
+        JMP NOT_FOUND_RESERVED              
+        
+GOTO_NEXT_DATE:     
+    ADD DI, 1                                  ;add 1 because next string start at position 11
+    JMP CHECK_OUTER
+                  
+                  
+FOUND_RESERVED:
+    LEA DX, invalidReservedDate
+    CALL DisplayString         
+    JMP ENTER_AGAIN3
+                                                                                                         
+NOT_FOUND_RESERVED:
+    
+    
     MOV SI, datesPointer  
     LEA DI, inputDate
     MOV CX, 10
@@ -1959,8 +2854,202 @@ invalid_Date_Format1:
     
 NEW_DATE_CHECKING:
     LEA DI, inputNewDate
-    CALL DATE_VALIDATION     ;VALIDATION HERE
-         
+    
+    CALL parseDayMonth         ;PARSE DAY
+    MOV day, AL  
+    ADD DI, 2  
+    CALL parseDayMonth         ;PARSE MONTH
+    MOV month, AL 
+    ADD DI, 2                  ;PARSE YEAR
+    
+    MOV AL, [DI]            
+    SUB AL, '0'     ;2         
+    MOV BL, 10     ;20
+    MUL BL     
+    INC DI
+    ADD AL, [DI]  ;22
+    SUB AL, '0'   
+    MUL BL       ;220
+    INC DI
+    ADD AL, [DI]  ;222
+    SUB AL, '0'
+    MUL BL          ;2220
+    INC DI
+    ADD AL, [DI]       ;2222
+    SUB AL, '0'         
+    MOV year, AX
+                      
+    MOV AH,2AH           ; To get System Date
+    INT 21H
+    MOV sys_day, DL      ; Day is in DL    
+    MOV sys_month,DH     ; Month is in DH  
+    MOV sys_year, CX     ; Year is in CX    
+                  
+    CMP year, CX 
+    JL invalid_year_less1  
+    CMP year, 2025              ;valid year
+    JG invalid_year_more1        
+    JMP MONTH_VALIDATION1
+
+invalid_year_less1:   
+    LEA DX, invalidYearL
+    CALL DisplayString  
+    JMP ENTER_NEW_DATE
+
+invalid_year_more1:
+    LEA DX, invalidYearG
+    CALL DisplayString         
+    JMP ENTER_NEW_DATE
+
+MONTH_VALIDATION1:
+    CMP month, 1
+    JL invalid_month1            ;valid month
+    CMP month, 12
+    JG invalid_month1  
+    JMP DAY_VALIDATION1
+
+invalid_month1:                                                      
+    LEA DX, invalidMonth
+    CALL DisplayString         
+    JMP ENTER_NEW_DATE  
+
+DAY_VALIDATION1:    
+    CMP month, 2 
+    JE check_leap_year1          ;valid day, check which month first
+    CMP month, 4 
+    JE check_day301
+    CMP month, 6 
+    JE check_day301
+    CMP month, 9 
+    JE check_day301
+    CMP month, 11 
+    JE check_day301
+
+    CMP day, 1
+    JL invalid_day11
+    CMP day, 31                ;all months with 31days
+    JG invalid_day311    
+    JMP valid_day1  
+                                      
+check_leap_year1:
+    MOV AX, year
+    MOV BX, 100
+    MOV DX, 0000H 
+    DIV BX                ;2024/100, 20INAX 24INDX   
+    
+    MOV AL, DL
+    MOV BL, 4             ;24/4 IF REM IS 0 = LEAP
+    DIV BL
+    CMP AH, 0
+    JNZ not_leap_year1
+       
+    CMP day, 1
+    JL invalid_day11   
+    CMP day, 29
+    JLE valid_day1  
+    JMP invalid_day291
+   
+not_leap_year1:  
+    CMP day, 1
+    JL invalid_day11
+    CMP day, 28
+    JLE valid_day1
+    JMP invalid_day281
+    
+check_day301:  
+    CMP day, 1                        ;TODO: TEST ZERO
+    JL  invalid_day11
+    CMP day, 30
+    JLE valid_day1  
+    JMP invalid_day301
+
+invalid_day11:
+    LEA DX, invalidDay1
+    CALL DisplayString         
+    JMP ENTER_NEW_DATE 
+
+invalid_day301:
+    LEA DX, invalidDay30
+    CALL DisplayString         
+    JMP ENTER_NEW_DATE                
+    
+invalid_day311:
+    LEA DX, invalidDay31
+    CALL DisplayString         
+    JMP ENTER_NEW_DATE 
+    
+invalid_day291: 
+    LEA DX, invalidDay29
+    CALL DisplayString         
+    JMP ENTER_NEW_DATE 
+
+invalid_day281:
+    LEA DX, invalidDay28
+    CALL DisplayString         
+    JMP ENTER_NEW_DATE        
+
+valid_day1:
+        
+    MOV DI, reservedDatesPointer            ;INPUT 1 GET 10
+    MOV AL, reservedCount                   ;INPUT 2 GET 21
+    MOV BL, 10                              ;INPUT 3 GET 32
+    MUL BL
+    ADD AL, reservedCount                   ;10N + (N-1)
+    SUB AL, 1
+    MOV endingIndex, AX                     ;if reservedcount = 2, end at 21, (22 is new date already)
+
+CHECK_OUTER1:                
+      
+        MOV charCounter, 0 
+        MOV CORRECT, 10               
+        MOV SI, 0                                   
+        MOV CX, 10 
+
+        CHECK_INNER1:
+            MOV AL, [reservedDates+DI] 
+            SUB AL, "0"
+            MOV BL, [inputNewDate+SI]
+            SUB BL, "0"   
+        
+            CMP AL, BL                   
+            JE PLUS_COUNTER1
+            JMP SUB_COUNTER1
+            
+            PLUS_COUNTER1:
+                INC CORRECT 
+                JMP OK1
+            
+            SUB_COUNTER1:
+                DEC CORRECT
+            
+            OK1:
+            INC SI 
+            INC DI
+            INC charCounter
+            LOOP CHECK_INNER1    
+        
+        MOV AL, CORRECT
+        CMP CORRECT, 20                       ;correct = 20 means all chracters of date are same
+        JE  FOUND_RESERVED1                             ;less than 20 means not all same
+     
+           
+        CMP DI, endingIndex                   
+        JE ENTER_NEW_TIME        
+        
+        CMP charCounter, 10                    ;date length is 10, after 10, move to next date
+        JE GOTO_NEXT_DATE1        
+        JMP ENTER_NEW_TIME              
+        
+GOTO_NEXT_DATE1:     
+    ADD DI, 1                                  ;add 1 because next string start at position 11
+    JMP CHECK_OUTER1
+                  
+                  
+FOUND_RESERVED1:
+    LEA DX, invalidReservedDate
+    CALL DisplayString         
+    JMP ENTER_NEW_DATE
+                                                                                                                    
 ENTER_NEW_TIME:      
     LEA SI, inputNewTime
     XOR AL, AL
@@ -2117,205 +3206,5 @@ removePreviousChar PROC
     RET
 removePreviousChar ENDP 
 
-DATE_VALIDATION PROC                 
-    CALL parseDayMonth         ;PARSE DAY
-    MOV day, AL  
-    ADD DI, 2  
-    CALL parseDayMonth         ;PARSE MONTH
-    MOV month, AL 
-    ADD DI, 2                  ;PARSE YEAR
-    
-    MOV AL, [DI]            
-    SUB AL, '0'     ;2         
-    MOV BL, 10     ;20
-    MUL BL     
-    INC DI
-    ADD AL, [DI]  ;22
-    SUB AL, '0'   
-    MUL BL       ;220
-    INC DI
-    ADD AL, [DI]  ;222
-    SUB AL, '0'
-    MUL BL          ;2220
-    INC DI
-    ADD AL, [DI]       ;2222
-    SUB AL, '0'         
-    MOV year, AX
-                      
-    MOV AH,2AH           ; To get System Date
-    INT 21H
-    MOV sys_day, DL      ; Day is in DL    
-    MOV sys_month,DH     ; Month is in DH  
-    MOV sys_year, CX     ; Year is in CX    
-                  
-    CMP year, CX 
-    JL invalid_year_less  
-    CMP year, 2025              ;valid year
-    JG invalid_year_more        
-    JMP MONTH_VALIDATION
-
-invalid_year_less:   
-    LEA DX, invalidYearL
-    CALL DisplayString  
-    JMP ENTER_AGAIN3
-
-invalid_year_more:
-    LEA DX, invalidYearG
-    CALL DisplayString         
-    JMP ENTER_AGAIN3
-
-MONTH_VALIDATION:
-    CMP month, 1
-    JL invalid_month            ;valid month
-    CMP month, 12
-    JG invalid_month  
-    JMP DAY_VALIDATION
-
-invalid_month:                                                      
-    LEA DX, invalidMonth
-    CALL DisplayString         
-    JMP ENTER_AGAIN3  
-
-DAY_VALIDATION:    
-    CMP month, 2 
-    JE check_leap_year          ;valid day, check which month first
-    CMP month, 4 
-    JE check_day30
-    CMP month, 6 
-    JE check_day30
-    CMP month, 9 
-    JE check_day30
-    CMP month, 11 
-    JE check_day30
-
-    CMP day, 1
-    JL invalid_day1
-    CMP day, 31                ;all months with 31days
-    JG invalid_day31    
-    JMP valid_day  
-                                      
-check_leap_year:
-    MOV AX, year
-    MOV BX, 100
-    MOV DX, 0000H 
-    DIV BX                ;2024/100, 20INAX 24INDX   
-    
-    MOV AL, DL
-    MOV BL, 4             ;24/4 IF REM IS 0 = LEAP
-    DIV BL
-    CMP AH, 0
-    JNZ not_leap_year
-       
-    CMP day, 1
-    JL invalid_day1   
-    CMP day, 29
-    JLE valid_day  
-    JMP invalid_day29
-   
-not_leap_year:  
-    CMP day, 1
-    JL invalid_day1
-    CMP day, 28
-    JLE valid_day
-    JMP invalid_day28
-    
-check_day30:  
-    CMP day, 1                        ;TODO: TEST ZERO
-    JL  invalid_day1
-    CMP day, 30
-    JLE valid_day  
-    JMP invalid_day30
-
-invalid_day1:
-    LEA DX, invalidDay1
-    CALL DisplayString         
-    JMP ENTER_AGAIN3 
-
-invalid_day30:
-    LEA DX, invalidDay30
-    CALL DisplayString         
-    JMP ENTER_AGAIN3   
-    
-invalid_day31:
-    LEA DX, invalidDay31
-    CALL DisplayString         
-    JMP ENTER_AGAIN3 
-    
-invalid_day29: 
-    LEA DX, invalidDay29
-    CALL DisplayString         
-    JMP ENTER_AGAIN3 
-
-invalid_day28:
-    LEA DX, invalidDay28
-    CALL DisplayString         
-    JMP ENTER_AGAIN3        
-
-valid_day: 
-
-    MOV DI, reservedDatesPointer            ;INPUT 1 GET 10
-    MOV AL, reservedCount                   ;INPUT 2 GET 21
-    MOV BL, 10                              ;INPUT 3 GET 32
-    MUL BL
-    ADD AL, reservedCount                   ;10N + (N-1)
-    SUB AL, 1
-    MOV endingIndex, AX                     ;if reservedcount = 2, end at 21, (22 is new date already)
-
-CHECK_OUTER:                
-      
-        MOV charCounter, 0 
-        MOV CORRECT, 10               
-        MOV SI, 0                                   
-        MOV CX, 10 
-
-        CHECK_INNER:
-            MOV AL, [reservedDates+DI] 
-            SUB AL, "0"
-            MOV BL, [inputDate+SI]
-            SUB BL, "0"   
-        
-            CMP AL, BL                   
-            JE PLUS_COUNTER
-            JMP SUB_COUNTER
-            
-            PLUS_COUNTER:
-                INC CORRECT 
-                JMP OK
-            
-            SUB_COUNTER:
-                DEC CORRECT
-            
-            OK:
-            INC SI 
-            INC DI
-            INC charCounter
-            LOOP CHECK_INNER    
-        
-        MOV AL, CORRECT
-        CMP CORRECT, 20                       ;correct = 20 means all chracters of date are same
-        JE  FOUND_RESERVED                             ;less than 20 means not all same
-     
-           
-        CMP DI, endingIndex                   
-        JE NOT_FOUND_RESERVED        
-        
-        CMP charCounter, 10                    ;date length is 10, after 10, move to next date
-        JE GOTO_NEXT_DATE        
-        JMP NOT_FOUND_RESERVED              
-        
-GOTO_NEXT_DATE:     
-    ADD DI, 1                                  ;add 1 because next string start at position 11
-    JMP CHECK_OUTER
-                  
-                  
-FOUND_RESERVED:
-    LEA DX, invalidReservedDate
-    CALL DisplayString         
-    JMP ENTER_AGAIN3
-                                                                                                         
-NOT_FOUND_RESERVED:
-
-    RET   
-DATE_VALIDATION ENDP 
 
 END MAIN
